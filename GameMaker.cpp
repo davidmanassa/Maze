@@ -11,6 +11,7 @@ GameMaker::GameMaker(int mazeHeight, int mazeWidth) {
 void GameMaker::transferDataToGPUMemory(void) {
     transferCubeToGPUMemory();
     transferFloorToGPUMemory();
+    loadPlayer();
 }
 
 void GameMaker::transferCubeToGPUMemory(void) {
@@ -179,6 +180,56 @@ void GameMaker::cleanupDataFromGPU() {
     glDeleteProgram(programID);
 }
 
+void GameMaker::loadPlayer() {
+
+    std::vector< glm::vec3 > vertices;
+    std::vector< glm::vec2 > uvs;
+    std::vector< glm::vec3 > normals; // Won't be used at the moment.
+    bool res = loadOBJ("sphere.obj", vertices, uvs, normals);
+
+	glGenBuffers(1, &playerVertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, playerVertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &playerColorBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, playerColorBuffer);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+
+    GameMaker::size = vertices.size();
+
+}
+
+void GameMaker::drawPlayer(GLfloat transX, GLfloat transZ, GLfloat scale) {
+
+    glUseProgram(programID);
+
+    glm::mat4 Trans = glm::translate(glm::mat4(1.0f), glm::vec3(transX, 0.5f, transZ));
+    glm::mat4 Scale = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
+    
+    MVP =  Projection * View * Model * Trans * Scale;
+    
+    // Send our transformation to the currently bound shader,
+    // in the "MVP" uniform, which is now MVP
+    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    
+    // 1rst attribute buffer : vertices
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, playerVertexBuffer);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    
+    // 2nd attribute buffer : colors
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, playerColorBuffer);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+    glDrawArrays(GL_TRIANGLES, 0, GameMaker::size);
+
+    
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+
+}
+
 void GameMaker::drawMap() {
 
     char** map = mg.getMatrixForOpenGL();
@@ -189,6 +240,9 @@ void GameMaker::drawMap() {
                 drawCube(i, j);
             } else {
                 drawFloor(i, j);
+                if (map[i][j] == 'S') {
+                    drawPlayer(i + 0.5f, j + 0.5f, 0.5f);
+                }
             }
         }
     }

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <vector>
 
 // Include GLEW
 #include <GL/glew.h>
@@ -20,6 +21,7 @@ using namespace glm;
 
 // shaders header file
 #include "common/shader.hpp"
+#include "common/objloader.hpp"
 
 #include "MapGenerator.hpp"
 
@@ -41,10 +43,14 @@ class GameMaker {
         // Vertex buffer object (VBO)
         GLuint cubeVertexBuffer;
         GLuint floorVertexBuffer;
+        GLuint playerVertexBuffer;
 
         // color buffer object (CBO)
         GLuint cubeColorbuffer;
         GLuint floorColorBuffer;
+        GLuint playerColorBuffer;
+
+        int size = 0;
 
         MapGenerator mg = MapGenerator();
 
@@ -77,11 +83,13 @@ class GameMaker {
         GameMaker(int mazeHeight, int mazeWidth);
 
         void transferDataToGPUMemory(void);
+        void loadPlayer();
         void setMVP(void);
         void drawCube(GLfloat transX, GLfloat transZ);
         void drawFloor(GLfloat transX, GLfloat transZ);
         void cleanupDataFromGPU();
         void drawMap();
+        void drawPlayer(GLfloat transX, GLfloat transZ, GLfloat scale);
 
 };
 
