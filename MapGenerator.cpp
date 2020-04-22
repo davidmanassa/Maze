@@ -4,10 +4,20 @@ MapGenerator::~MapGenerator() {
     // free memmory
 }
 
-MapGenerator::MapGenerator(int height, int width) {
+MapGenerator::MapGenerator() {
 
+}
+
+MapGenerator::MapGenerator(int height, int width) {
+    Init(height, width);
+}
+
+void MapGenerator::Init(int height, int width) {
     MapGenerator::height = height;
     MapGenerator::width = width;
+
+    MapGenerator::mapHeight = height * 2 + 1;
+    MapGenerator::mapWidth = width * 2 + 1;
 
     openGLReadyMatrix = NULL;
 
@@ -17,7 +27,7 @@ MapGenerator::MapGenerator(int height, int width) {
         for (int j = 0; j < width; j++) {
             Cell cell;
             cell.x = i; // Why not   Why yes   :)
-            cell.y = j; // Why not   Why yes   :)   We can use the possition i, j  but its Okay
+            cell.y = j; // Why not   Why yes   :)   We can use the position i, j  but its Okay
             cell.visited = false;
             map[i][j] = cell;
         }
