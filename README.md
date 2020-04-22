@@ -1,0 +1,2 @@
+# Maze
+Computer Graphics project
