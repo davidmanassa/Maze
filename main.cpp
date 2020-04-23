@@ -21,6 +21,19 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
         gm.angulo += gm.delta;
 }
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
+    std::cout << xoffset << " " << yoffset << "\n";
+    if(yoffset>0)
+        gm.cameraAtY -= 0.25;
+    else
+    {
+        gm.cameraAtY += 0.25;
+    }
+    
+    
+
+}
+
 
 int main( void ) {
     // Initialise GLFW
@@ -65,7 +78,7 @@ int main( void ) {
 
     // set the model-view-projection matrix
     glfwSetMouseButtonCallback(window, mouse_button_callback);
-    
+    glfwSetScrollCallback(window, scroll_callback);
     // render scene for each frame
     do {
         

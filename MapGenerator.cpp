@@ -40,7 +40,7 @@ void MapGenerator::Init(int height, int width) {
             charMaze[i][j] = 'X';
         charMaze[i][width * 2] = '\0';
     }
-    charMaze[height * 2] = '\0';
+    //charMaze[height * 2] = '\0';
 
     srand(time(NULL)); 
 	int random = rand() % width;
