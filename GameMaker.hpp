@@ -25,6 +25,8 @@ using namespace glm;
 
 #include "MapGenerator.hpp"
 
+#include "Physics.hpp"
+
 /**
         0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    // cyan
         0.0f,  1.0f,  0.0f,    0.0f,  1.0f,  0.0f,    0.0f,  1.0f,  0.0f,    // green
@@ -57,7 +59,15 @@ class GameMaker {
         void transferCubeToGPUMemory(void);
         void transferFloorToGPUMemory(void);
 
+        btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
+
     public:
+
+        Physics::PhysicsWorld* physicsWorld;
+
+        Physics::PhysicsBody* playerBody;
+        std::vector<Physics::PhysicsBody*> objectBodies;
+
         // Vertex array object (VAO)
         GLuint VertexArrayID;
 
@@ -81,15 +91,22 @@ class GameMaker {
         GLfloat lookAtX = 0, lookAtY = 0, lookAtZ = 0;
 
         GameMaker(int mazeHeight, int mazeWidth);
+        GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw);
 
         void transferDataToGPUMemory(void);
         void loadPlayer();
         void setMVP(void);
-        void drawCube(GLfloat transX, GLfloat transZ);
-        void drawFloor(GLfloat transX, GLfloat transZ);
+        void drawCube(glm::vec3 trans);
+        void drawFloor(glm::vec3 trans);
         void cleanupDataFromGPU();
         void drawMap();
-        void drawPlayer(GLfloat transX, GLfloat transZ, GLfloat scale);
+        void drawPlayer(GLfloat scale);
+
+        void attachPhysicsWorld(Physics::PhysicsWorld* pw) {physicsWorld = pw;};
+        void attachPlayerBody(Physics::PhysicsBody* pb1) {playerBody = pb1;};
+
+        void update(double dt);
+        void loadPhysics();
 
 };
 
