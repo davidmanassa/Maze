@@ -85,7 +85,7 @@ namespace Physics {
         btTransform transform;
         body->getMotionState()->getWorldTransform(transform);
         
-        return glm::vec3(transform.getOrigin().x(),transform.getOrigin().y(),transform.getOrigin().z());
+        return glm::vec3(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
     }
 
 }

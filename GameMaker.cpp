@@ -2,12 +2,18 @@
 
 GameMaker::GameMaker(int mazeHeight, int mazeWidth) {  
 
+    GameMaker::mazeHeight = mazeHeight;
+    GameMaker::mazeWidth = mazeWidth;
+    
     // Generate Maze
     mg.Init(mazeHeight, mazeWidth);
     mg.printMazeMap();
 
 }
-GameMaker::GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw) {  
+GameMaker::GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw) {
+
+    GameMaker::mazeHeight = mazeHeight;
+    GameMaker::mazeWidth = mazeWidth;
 
     // Generate Maze
     mg.Init(mazeHeight, mazeWidth);
@@ -176,6 +182,7 @@ void GameMaker::drawFloor(glm::vec3 trans) {
 
 
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
+
     
     MVP =  Projection * View * Model * Trans;
     
@@ -231,17 +238,21 @@ void GameMaker::drawPlayer(GLfloat scale) {
 
     glUseProgram(programID);
 
-    std::cout << " C " << playerBody->getWorldPosition().x << " " << playerBody->getWorldPosition().y << " " << playerBody->getWorldPosition().z << " " << std::endl;
+    glm::mat4 model1;
 
-    glm::mat4 model;
-    //model = glm::rotate(glm::mat4(1.0f), glm::radians(z), vec3(0,0,1));
-    model = glm::translate(glm::mat4(1.0f), playerBody->getWorldPosition());
-    //model = glm::scale(game.getPlayer()->model, vec3(.038,.038,.038));
+    //cameraAtX = wp.x;
+    //cameraAtY = wp.y + 15;
+    //cameraAtZ = wp.z + 5;
 
-    //glm::mat4 Trans = glm::translate(glm::mat4(1.0f), glm::vec3(transX, transY, transZ));
+    //lookAtX = wp.x;
+    //lookAtY = wp.y;
+    //lookAtZ = wp.z;
+
+    model1 = glm::translate(glm::mat4(1.0f), playerBody->getWorldPosition());
+
     glm::mat4 Scale = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
 
-    MVP =  Projection * View * Model * model * Scale;
+    MVP =  Projection * View * Model * model1 * Scale;
     
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform, which is now MVP
@@ -263,24 +274,26 @@ void GameMaker::drawPlayer(GLfloat scale) {
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
 
-    std::cout << " B " << std::endl;
-
 }
 
 void GameMaker::loadPhysics() {
     char** map = mg.getMatrixForOpenGL();
     for (int i = 0; i < mg.mapHeight; i++) {
         for (int j = 0; j < mg.mapWidth; j++) {
+
+            int x_pos = i - ((mazeWidth*2)/2), y_pos = j - ((mazeHeight*2)/2);
+
             if (map[i][j] == 'S') {
-                start_point = btVector3(i + 0.5f, 0.7f, j + 0.5f);
+                start_point = btVector3(x_pos, 0.6f, y_pos);
+                cameraAtY = glm::max(mazeHeight*2, mazeWidth*2);
             }
             if (map[i][j] == 'X') {
                 btCollisionShape* colShape = physicsWorld->createBoxShape(btVector3(0.5f, 0.5f, 0.5f));
-                Physics::PhysicsBody* pb = physicsWorld->createPhysicsBody(btVector3(i, 0.0f, j), colShape, btScalar(0));
+                Physics::PhysicsBody* pb = physicsWorld->createPhysicsBody(btVector3(x_pos, 0.0f, y_pos), colShape, btScalar(0));
                 objectBodies.push_back(pb); 
             } else {
                 btCollisionShape* colShape = physicsWorld->createBoxShape(btVector3(0.5f, 0.001f, 0.5f));
-                Physics::PhysicsBody* pb = physicsWorld->createPhysicsBody(btVector3(i, -0.5f, j), colShape, btScalar(0));
+                Physics::PhysicsBody* pb = physicsWorld->createPhysicsBody(btVector3(x_pos, -0.5f, y_pos), colShape, btScalar(0));
                 objectBodies.push_back(pb);
             }
         }
@@ -307,5 +320,8 @@ void GameMaker::drawMap() {
     }
 
     drawPlayer(0.5f);
+
+    std::cout << " g: " << physicsWorld->dynamicsWorld->getGravity().getX() << " " << physicsWorld->dynamicsWorld->getGravity().getY() << " " << physicsWorld->dynamicsWorld->getGravity().getZ() << " " << std::endl;
+    std::cout << " v: " << playerBody->body->getLinearVelocity().getX() << " " << playerBody->body->getLinearVelocity().getY() << " " << playerBody->body->getLinearVelocity().getZ() << " " << std::endl;
 
 }

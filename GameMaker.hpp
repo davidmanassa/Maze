@@ -42,6 +42,8 @@ class GameMaker {
 
     private:
 
+        int mazeHeight, mazeWidth;
+
         // Vertex buffer object (VBO)
         GLuint cubeVertexBuffer;
         GLuint floorVertexBuffer;
@@ -59,9 +61,8 @@ class GameMaker {
         void transferCubeToGPUMemory(void);
         void transferFloorToGPUMemory(void);
 
-        btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
-
     public:
+        btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
 
         Physics::PhysicsWorld* physicsWorld;
 
@@ -87,7 +88,7 @@ class GameMaker {
         glm::mat4 Projection = glm::mat4(1.0f);
         glm::mat4 View = glm::mat4(1.0f);
 
-        GLfloat cameraAtX = 0, cameraAtY = 15, cameraAtZ = -10;
+        GLfloat cameraAtX = 0, cameraAtY = 20, cameraAtZ = 0.001;
         GLfloat lookAtX = 0, lookAtY = 0, lookAtZ = 0;
 
         GameMaker(int mazeHeight, int mazeWidth);
