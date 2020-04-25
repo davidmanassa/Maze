@@ -4,15 +4,18 @@ Computer Graphics project
 <br>
 ## TO DO
 <br>• Modelação do labirinto. 🚧
-<br>• Texturização do labirinto. ❌
+<br>• Texturização do labirinto. 🚧
 <br>• Iluminação do labirinto. ❌
 <br>• Cálculo das sombras das paredes do labirinto. ❌
 <br>• Câmera pode mover-se para qualquer posição do labirinto. ✔️
-<br>• Utilização do teclado e do rato para mover, aproximar e alterar a vista sobre o labirinto. 🚧
-<br>• Bola que se move conforme a inclinação do labirinto. ❌
-<br>• Inclinação deverá ser feita através do movimento do rato no ecrã. ❌
+<br>• Utilização do teclado e do rato para mover, aproximar e alterar a vista sobre o labirinto. ✔️
+<br>• Bola que se move conforme a inclinação do labirinto. ✔️
+<br>• Inclinação deverá ser feita através do movimento do rato no ecrã. ✔️
 <br>• Os buracos deverão ser colocados estrategicamente em todo o tabuleiro. ❌
-<br>• Se a bola cair nalgum desses buracos, deve começar de novo no início do labirinto. ❌
+<br>• Se a bola cair nalgum desses buracos, deve começar de novo no início do labirinto. ✔️
+<br>
+## BUGS
+<br> • Bola fixa velocidade linear a 0 em tempo aleatório. Qual o trigger? (Durante funções de movimento da câmera?) 🚧
 
 # Labirinto 2D/3D
 
