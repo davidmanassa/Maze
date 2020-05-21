@@ -7,6 +7,7 @@ GLFWwindow* window;
 
 GLint windowWidth = 1024;
 GLint windowHeight = 768;
+const float ASPECT = float(windowWidth)/windowHeight;
 int mazeHeight = 15, mazeWidth = 15;
 
 GameMaker* gm;
@@ -95,7 +96,15 @@ void handleKeyboardInput(GLFWwindow* window) {
 
 }
 
+void window_size_callback(GLFWwindow* window, int width, int height)
+{
+
+    glViewport(0, 0, width, height);
+
+}
+
 int main( void ) {
+
     // Initialise GLFW
     glfwInit();
     
@@ -117,6 +126,8 @@ int main( void ) {
     
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+
+    glfwSetWindowSizeCallback(window, window_size_callback);
     
     // White background
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -137,8 +148,6 @@ int main( void ) {
     glGenVertexArrays(1, &gm->VertexArrayID);
     glBindVertexArray(gm->VertexArrayID);
 
-    // Create and compile our GLSL program from the shaders
-    gm->programID = LoadShaders("TransformVertexShader.vert", "ColorFragmentShader.frag");
     gm->transferDataToGPUMemory();
 
     gm->loadPhysics();

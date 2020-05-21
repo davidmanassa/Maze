@@ -176,7 +176,19 @@ char** MapGenerator::getMatrixForOpenGL() {
         }
         newMatrix[i][0] = 'X';
         for (int j = 1; j < width * 2; j++) {
-            newMatrix[i][j] = charMaze[i - 1][j - 1];
+
+            // GERA BURACOS
+            if (charMaze[i - 1][j - 1] == 'X') {
+                int random = rand() % 100;
+                if (random < 30) {
+                    newMatrix[i][j] = 'B';
+                } else {
+                    newMatrix[i][j] = charMaze[i - 1][j - 1];
+                }
+            } else {
+                newMatrix[i][j] = charMaze[i - 1][j - 1];
+            }
+            
         }
         newMatrix[i][(width * 2)] = 'X';
         newMatrix[i][(width * 2 + 1)] = '\0';

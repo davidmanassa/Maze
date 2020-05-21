@@ -25,6 +25,8 @@ GameMaker::GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw) {
 
 void GameMaker::transferDataToGPUMemory(void) {
 
+    programID = LoadShaders("TransformVertexShader.vert", "ColorFragmentShader.frag");
+
     transferCubeToGPUMemory();
     transferFloorToGPUMemory();
 
@@ -291,6 +293,8 @@ void GameMaker::loadPhysics() {
                 btCollisionShape* colShape = physicsWorld->createBoxShape(btVector3(0.5f, 0.5f, 0.5f));
                 Physics::PhysicsBody* pb = physicsWorld->createPhysicsBody(btVector3(x_pos, 0.0f, y_pos), colShape, btScalar(0));
                 objectBodies.push_back(pb); 
+            } else if (map[i][j] == 'B') {
+            
             } else {
                 btCollisionShape* colShape = physicsWorld->createBoxShape(btVector3(0.5f, 0.001f, 0.5f));
                 Physics::PhysicsBody* pb = physicsWorld->createPhysicsBody(btVector3(x_pos, -0.5f, y_pos), colShape, btScalar(0));
@@ -298,6 +302,7 @@ void GameMaker::loadPhysics() {
             }
         }
     }
+    std::cout << "Start: " << start_point.getX() << " " << start_point.getZ();
     btCollisionShape* colShape = physicsWorld->createSphereShape(0.35f);
     playerBody = physicsWorld->createPhysicsBody(start_point, colShape, btScalar(1));
 }
@@ -311,7 +316,11 @@ void GameMaker::drawMap() {
     for (int i = 0; i < mg.mapHeight; i++) {
         for (int j = 0; j < mg.mapWidth; j++) {
             if (map[i][j] == 'X') {
+
                 drawCube(glm::vec3(objectBodies[k]->getWorldPosition().x - 0.5f, objectBodies[k]->getWorldPosition().y - 0.5f, objectBodies[k]->getWorldPosition().z - 0.5f));
+            
+            } else if (map[i][j] == 'B') {
+                k--;
             } else {
                 drawFloor(glm::vec3(objectBodies[k]->getWorldPosition().x - 0.5f, objectBodies[k]->getWorldPosition().y, objectBodies[k]->getWorldPosition().z - 0.5f));
             }
