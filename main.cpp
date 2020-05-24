@@ -119,7 +119,8 @@ int main( void ) {
     
     // Create window context
     glfwMakeContextCurrent(window);
-    
+
+
     // Initialize GLEW
     glewExperimental = true; // Needed for core profile
     glewInit();
@@ -130,7 +131,7 @@ int main( void ) {
     glfwSetWindowSizeCallback(window, window_size_callback);
     
     // White background
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
     
     // Clear the screen
     glClear( GL_COLOR_BUFFER_BIT );

@@ -21,6 +21,7 @@ using namespace glm;
 
 // shaders header file
 #include "common/shader.hpp"
+#include "common/texture.hpp"
 #include "common/objloader.hpp"
 
 #include "MapGenerator.hpp"
@@ -62,6 +63,9 @@ class GameMaker {
         void transferFloorToGPUMemory(void);
 
     public:
+        GLuint Texture;
+        GLuint TextureID;
+        GLuint uvbuffer;
         btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
 
         Physics::PhysicsWorld* physicsWorld;

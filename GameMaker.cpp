@@ -25,7 +25,8 @@ GameMaker::GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw) {
 
 void GameMaker::transferDataToGPUMemory(void) {
 
-    programID = LoadShaders("TransformVertexShader.vert", "ColorFragmentShader.frag");
+    //programID = LoadShaders("TransformVertexShader.vert", "ColorFragmentShader.frag");
+     programID = LoadShaders("VertexShader.vertexshader", "FragmentShader.fragmentshader" );
 
     transferCubeToGPUMemory();
     transferFloorToGPUMemory();
@@ -44,6 +45,11 @@ void GameMaker::update(double dt){
 }
 
 void GameMaker::transferCubeToGPUMemory(void) {
+
+	Texture = loadBMP_custom("crate.bmp");
+	
+	// Get a handle for our "myTextureSampler" uniform
+	TextureID  = glGetUniformLocation(programID, "myTextureSampler");
 
    static const GLfloat cube[] = {
       //  0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, // base
@@ -67,24 +73,20 @@ void GameMaker::transferCubeToGPUMemory(void) {
     };
     
     // One color for each vertex. They were generated randomly.
-    static const GLfloat cube_colors[] = {
-      //  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
+    static const GLfloat g_uv_buffer_data[] = {
+    //  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
     // 0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
+        0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
+        1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
 
-        0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
-        0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
+        0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
+        1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
 
-        0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
-        0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
+        0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
+        1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
 
-        0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
-        0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
-
-        0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
-        0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
-
-        0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
-        0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
+        0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
+        1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
     };
 
     // Move vertex data to video memory; specifically to VBO called vertexbuffer
@@ -92,10 +94,10 @@ void GameMaker::transferCubeToGPUMemory(void) {
     glBindBuffer(GL_ARRAY_BUFFER, cubeVertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
     
-    // Move color data to video memory; specifically to CBO called colorbuffer
-    glGenBuffers(1, &cubeColorbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, cubeColorbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_colors), cube_colors, GL_STATIC_DRAW);
+    
+	glGenBuffers(1, &uvbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
     
 }
 
@@ -147,7 +149,7 @@ void GameMaker::setMVP(void) {
 void GameMaker::drawCube(glm::vec3 trans) {
     
     glUseProgram(programID);
- glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
+    glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
     //glm::mat4 Trans = glm::translate(glm::mat4(1.0f), glm::vec3(transX, 0.0f, transZ));
     
     MVP =  Projection * View * Model * Trans;
@@ -155,16 +157,28 @@ void GameMaker::drawCube(glm::vec3 trans) {
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform, which is now MVP
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    // Bind our texture in Texture Unit 0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Texture);
+		// Set our "myTextureSampler" sampler to use Texture Unit 0
+		glUniform1i(TextureID, 0);
     
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVertexBuffer);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     
-    // 2nd attribute buffer : colors
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, cubeColorbuffer);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    // 2nd attribute buffer : UVs
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+		glVertexAttribPointer(
+			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+			2,                                // size : U+V => 2
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // normalized?
+			0,                                // stride
+			(void*)0                          // array buffer offset
+		);;
     
     glDrawArrays(GL_TRIANGLES, 0, 2*3*5);
     
