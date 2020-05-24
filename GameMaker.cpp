@@ -26,7 +26,7 @@ GameMaker::GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw) {
 void GameMaker::transferDataToGPUMemory(void) {
 
      programID2 = LoadShaders("TransformVertexShader.vert", "ColorFragmentShader.frag");
-     programID = LoadShaders("VertexShader.vertexshader", "FragmentShader.fragmentshader" );
+     programID = LoadShaders("VertexShader.vert", "FragmentShader.frag" );
 
     transferCubeToGPUMemory();
     transferFloorToGPUMemory();
