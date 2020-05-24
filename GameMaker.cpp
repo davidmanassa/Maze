@@ -25,7 +25,7 @@ GameMaker::GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw) {
 
 void GameMaker::transferDataToGPUMemory(void) {
 
-    //programID = LoadShaders("TransformVertexShader.vert", "ColorFragmentShader.frag");
+     programID2 = LoadShaders("TransformVertexShader.vert", "ColorFragmentShader.frag");
      programID = LoadShaders("VertexShader.vertexshader", "FragmentShader.fragmentshader" );
 
     transferCubeToGPUMemory();
@@ -74,8 +74,7 @@ void GameMaker::transferCubeToGPUMemory(void) {
     
     // One color for each vertex. They were generated randomly.
     static const GLfloat g_uv_buffer_data[] = {
-    //  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
-    // 0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,  0.00f, 1.0f, 1.0f,    // cyan
+
         0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
         1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
 
@@ -103,15 +102,22 @@ void GameMaker::transferCubeToGPUMemory(void) {
 
 void GameMaker::transferFloorToGPUMemory(void) {
 
+    Texture_floor = loadBMP_custom("floor.bmp");
+	
+	// Get a handle for our "myTextureSampler" uniform
+	TextureID_floor  = glGetUniformLocation(programID, "myTextureSampler");
+
    static const GLfloat floor[] = {
         0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, // base
         1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f
     };
     
     // One color for each vertex. They were generated randomly.
-    static const GLfloat floor_colors[] = {
-        1.0f,  1.0f,  1.0f,    1.0f,  1.0f,  1.0f,    1.0f,  1.0f,  1.0f,   // white
-        1.0f,  1.0f,  1.0f,    1.0f,  1.0f,  1.0f,    1.0f,  1.0f,  1.0f    // white
+    static const GLfloat g_uv_buffer_data_floor[] = {
+
+        0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
+        1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
+
     };
 
     // Move vertex data to video memory; specifically to VBO called vertexbuffer
@@ -119,10 +125,9 @@ void GameMaker::transferFloorToGPUMemory(void) {
     glBindBuffer(GL_ARRAY_BUFFER, floorVertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(floor), floor, GL_STATIC_DRAW);
     
-    // Move color data to video memory; specifically to CBO called colorbuffer
-    glGenBuffers(1, &floorColorBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, floorColorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(floor_colors), floor_colors, GL_STATIC_DRAW);
+    glGenBuffers(1, &uvbuffer_floor);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_floor);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data_floor), g_uv_buffer_data_floor, GL_STATIC_DRAW);
     
 }
 
@@ -158,10 +163,10 @@ void GameMaker::drawCube(glm::vec3 trans) {
     // in the "MVP" uniform, which is now MVP
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
     // Bind our texture in Texture Unit 0
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, Texture);
-		// Set our "myTextureSampler" sampler to use Texture Unit 0
-		glUniform1i(TextureID, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Texture);
+	// Set our "myTextureSampler" sampler to use Texture Unit 0
+	glUniform1i(TextureID, 0);
     
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
@@ -205,16 +210,27 @@ void GameMaker::drawFloor(glm::vec3 trans) {
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform, which is now MVP
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-    
+    // Bind our texture in Texture Unit 0
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Texture_floor);
+	// Set our "myTextureSampler" sampler to use Texture Unit 0
+	glUniform1i(TextureID_floor, 0);
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, floorVertexBuffer);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     
-    // 2nd attribute buffer : colors
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, floorColorBuffer);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    // 2nd attribute buffer : UVs
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_floor);
+		glVertexAttribPointer(
+			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+			2,                                // size : U+V => 2
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // normalized?
+			0,                                // stride
+			(void*)0                          // array buffer offset
+		);;
     
     glDrawArrays(GL_TRIANGLES, 0, 2*3);
     
@@ -252,7 +268,7 @@ void GameMaker::loadPlayer() {
 
 void GameMaker::drawPlayer(GLfloat scale) {
 
-    glUseProgram(programID);
+    glUseProgram(programID2);
 
     glm::mat4 model1;
 

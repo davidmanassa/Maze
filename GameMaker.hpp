@@ -65,7 +65,10 @@ class GameMaker {
     public:
         GLuint Texture;
         GLuint TextureID;
+         GLuint Texture_floor;
+        GLuint TextureID_floor;
         GLuint uvbuffer;
+        GLuint uvbuffer_floor;
         btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
 
         Physics::PhysicsWorld* physicsWorld;
@@ -78,6 +81,7 @@ class GameMaker {
 
         // GLSL program from the shaders
         GLuint programID;
+         GLuint programID2;
 
         // Matrix id of the MVP
         GLuint MatrixID;
