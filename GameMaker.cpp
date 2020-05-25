@@ -328,19 +328,31 @@ void GameMaker::cleanupDataFromGPU() {
 }
 
 void GameMaker::loadPlayer() {
+    Texture_player = loadBMP_custom("sand.bmp");
+	
+	// Get a handle for our "myTextureSampler" uniform
+	TextureID_player  = glGetUniformLocation(programID, "myTextureSampler");
 
     std::vector< glm::vec3 > vertices;
     std::vector< glm::vec2 > uvs;
     std::vector< glm::vec3 > normals; // Won't be used at the moment.
     bool res = loadOBJ("sphere.obj", vertices, uvs, normals);
 
+    // One color for each vertex. They were generated randomly.
+    static const GLfloat g_uv_buffer_data_floor[] = {
+
+        0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
+        1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
+
+    };
+
 	glGenBuffers(1, &playerVertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, playerVertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
-	glGenBuffers(1, &playerColorBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, playerColorBuffer);
-	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+	glGenBuffers(1, &uvbuffer_player);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_player);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data_floor), g_uv_buffer_data_floor, GL_STATIC_DRAW);
 
     GameMaker::size = vertices.size();
                     
@@ -348,7 +360,9 @@ void GameMaker::loadPlayer() {
 
 void GameMaker::drawPlayer(GLfloat scale) {
 
-    glUseProgram(programID2);
+    glUseProgram(programID);
+
+    
 
     glm::mat4 model1;
 
@@ -369,16 +383,28 @@ void GameMaker::drawPlayer(GLfloat scale) {
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform, which is now MVP
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    // Bind our texture in Texture Unit 0
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Texture_player);
+	// Set our "myTextureSampler" sampler to use Texture Unit 0
+	glUniform1i(TextureID_player, 0);
     
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, playerVertexBuffer);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     
-    // 2nd attribute buffer : colors
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, playerColorBuffer);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    // 2nd attribute buffer : UVs
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_player);
+		glVertexAttribPointer(
+			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+			2,                                // size : U+V => 2
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // normalized?
+			0,                                // stride
+			(void*)0                          // array buffer offset
+		);;
 
     glDrawArrays(GL_TRIANGLES, 0, GameMaker::size);
 
