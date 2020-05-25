@@ -30,7 +30,7 @@ void GameMaker::transferDataToGPUMemory(void) {
 
     transferCubeToGPUMemory();
     transferFloorToGPUMemory();
-
+    transferHoleToGPUMemory();
     loadPlayer();
 
 }
@@ -81,11 +81,14 @@ void GameMaker::transferCubeToGPUMemory(void) {
         0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
         1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
 
-        0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
-        1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
+        0.0f,0.0f,  1.0f,0.0f,  1.0f,1.0f,
+        0.0f,0.0f,  0.0f,1.0f,  1.0f,1.0f,
 
         0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
         1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
+
+        0.0f,0.0f,  1.0f,0.0f,  1.0f,1.0f,
+        0.0f,0.0f,  0.0f,1.0f,  1.0f,1.0f,
     };
 
     // Move vertex data to video memory; specifically to VBO called vertexbuffer
@@ -102,7 +105,7 @@ void GameMaker::transferCubeToGPUMemory(void) {
 
 void GameMaker::transferFloorToGPUMemory(void) {
 
-    Texture_floor = loadBMP_custom("floor.bmp");
+    Texture_floor = loadBMP_custom("grass20.bmp");
 	
 	// Get a handle for our "myTextureSampler" uniform
 	TextureID_floor  = glGetUniformLocation(programID, "myTextureSampler");
@@ -127,6 +130,36 @@ void GameMaker::transferFloorToGPUMemory(void) {
     
     glGenBuffers(1, &uvbuffer_floor);
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_floor);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data_floor), g_uv_buffer_data_floor, GL_STATIC_DRAW);
+    
+}
+void GameMaker::transferHoleToGPUMemory(void) {
+
+    Texture_hole = loadBMP_custom("grass20.bmp");
+	
+	// Get a handle for our "myTextureSampler" uniform
+	TextureID_hole  = glGetUniformLocation(programID, "myTextureSampler");
+
+   static const GLfloat floor[] = {
+        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, // base
+        1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f
+    };
+    
+    // One color for each vertex. They were generated randomly.
+    static const GLfloat g_uv_buffer_data_floor[] = {
+
+        0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
+        1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
+
+    };
+
+    // Move vertex data to video memory; specifically to VBO called vertexbuffer
+    glGenBuffers(1, &holeVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, holeVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(floor), floor, GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &uvbuffer_hole);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_hole);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data_floor), g_uv_buffer_data_floor, GL_STATIC_DRAW);
     
 }
@@ -223,6 +256,53 @@ void GameMaker::drawFloor(glm::vec3 trans) {
     // 2nd attribute buffer : UVs
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_floor);
+		glVertexAttribPointer(
+			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+			2,                                // size : U+V => 2
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // normalized?
+			0,                                // stride
+			(void*)0                          // array buffer offset
+		);;
+    
+    glDrawArrays(GL_TRIANGLES, 0, 2*3);
+    
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+}
+
+void GameMaker::drawHole(glm::vec3 trans) {
+    
+    glUseProgram(programID);
+
+  
+    //glm::mat4 model;
+    //model = glm::rotate(glm::mat4(1.0f), glm::radians(z), vec3(0,0,1));
+    //model = glm::translate(glm::mat4(1.0f), playerBody->getWorldPosition());
+    //model = glm::scale(game.getPlayer()->model, vec3(.038,.038,.038));
+
+
+    glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
+
+    
+    MVP =  Projection * View * Model * Trans;
+    
+    // Send our transformation to the currently bound shader,
+    // in the "MVP" uniform, which is now MVP
+    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    // Bind our texture in Texture Unit 0
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Texture_hole);
+	// Set our "myTextureSampler" sampler to use Texture Unit 0
+	glUniform1i(TextureID_hole, 0);
+    // 1rst attribute buffer : vertices
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, holeVertexBuffer);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    
+    // 2nd attribute buffer : UVs
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_hole);
 		glVertexAttribPointer(
 			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
 			2,                                // size : U+V => 2
@@ -350,7 +430,8 @@ void GameMaker::drawMap() {
                 drawCube(glm::vec3(objectBodies[k]->getWorldPosition().x - 0.5f, objectBodies[k]->getWorldPosition().y - 0.5f, objectBodies[k]->getWorldPosition().z - 0.5f));
             
             } else if (map[i][j] == 'B') {
-                k--;
+                drawHole(glm::vec3(objectBodies[k]->getWorldPosition().x - 0.5f, objectBodies[k]->getWorldPosition().y, objectBodies[k]->getWorldPosition().z - 0.5f));
+               k--;
             } else {
                 drawFloor(glm::vec3(objectBodies[k]->getWorldPosition().x - 0.5f, objectBodies[k]->getWorldPosition().y, objectBodies[k]->getWorldPosition().z - 0.5f));
             }

@@ -49,11 +49,14 @@ class GameMaker {
         GLuint cubeVertexBuffer;
         GLuint floorVertexBuffer;
         GLuint playerVertexBuffer;
+         GLuint holeVertexBuffer;
 
         // color buffer object (CBO)
         GLuint cubeColorbuffer;
         GLuint floorColorBuffer;
         GLuint playerColorBuffer;
+
+        GLuint holeColorBuffer;
 
         int size = 0;
 
@@ -61,14 +64,21 @@ class GameMaker {
 
         void transferCubeToGPUMemory(void);
         void transferFloorToGPUMemory(void);
+        void transferHoleToGPUMemory(void);
 
     public:
         GLuint Texture;
         GLuint TextureID;
          GLuint Texture_floor;
         GLuint TextureID_floor;
+        GLuint Texture_hole;
+        GLuint TextureID_hole;
+        GLuint Texture_player;
+        GLuint TextureID_player;
         GLuint uvbuffer;
         GLuint uvbuffer_floor;
+        GLuint uvbuffer_hole;
+         GLuint uvbuffer_player;
         btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
 
         Physics::PhysicsWorld* physicsWorld;
@@ -107,6 +117,7 @@ class GameMaker {
         void setMVP(void);
         void drawCube(glm::vec3 trans);
         void drawFloor(glm::vec3 trans);
+        void drawHole(glm::vec3 trans);
         void cleanupDataFromGPU();
         void drawMap();
         void drawPlayer(GLfloat scale);
