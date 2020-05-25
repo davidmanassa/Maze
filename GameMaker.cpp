@@ -105,7 +105,7 @@ void GameMaker::transferCubeToGPUMemory(void) {
 
 void GameMaker::transferFloorToGPUMemory(void) {
 
-    Texture_floor = loadBMP_custom("grass20.bmp");
+    Texture_floor = loadBMP_custom("wall.bmp");
 	
 	// Get a handle for our "myTextureSampler" uniform
 	TextureID_floor  = glGetUniformLocation(programID, "myTextureSampler");
@@ -135,7 +135,7 @@ void GameMaker::transferFloorToGPUMemory(void) {
 }
 void GameMaker::transferHoleToGPUMemory(void) {
 
-    Texture_hole = loadBMP_custom("water.bmp");
+    Texture_hole = loadBMP_custom("hole.bmp");
 	
 	// Get a handle for our "myTextureSampler" uniform
 	TextureID_hole  = glGetUniformLocation(programID, "myTextureSampler");
