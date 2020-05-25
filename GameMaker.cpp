@@ -135,7 +135,7 @@ void GameMaker::transferFloorToGPUMemory(void) {
 }
 void GameMaker::transferHoleToGPUMemory(void) {
 
-    Texture_hole = loadBMP_custom("grass20.bmp");
+    Texture_hole = loadBMP_custom("water.bmp");
 	
 	// Get a handle for our "myTextureSampler" uniform
 	TextureID_hole  = glGetUniformLocation(programID, "myTextureSampler");
@@ -147,9 +147,11 @@ void GameMaker::transferHoleToGPUMemory(void) {
     
     // One color for each vertex. They were generated randomly.
     static const GLfloat g_uv_buffer_data_floor[] = {
+        1.0f,0.0f,    1.0f,1.0f, 0.0f,0.0f, // imagem rodada
+        1.0f,0.0f,    0.0f,0.0f, 1.0f,1.0f,
 
-        0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
-        1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
+        //0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f, // imagem normal
+        //1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
 
     };
 
@@ -456,8 +458,10 @@ void GameMaker::drawMap() {
                 drawCube(glm::vec3(objectBodies[k]->getWorldPosition().x - 0.5f, objectBodies[k]->getWorldPosition().y - 0.5f, objectBodies[k]->getWorldPosition().z - 0.5f));
             
             } else if (map[i][j] == 'B') {
-                drawHole(glm::vec3(objectBodies[k]->getWorldPosition().x - 0.5f, objectBodies[k]->getWorldPosition().y, objectBodies[k]->getWorldPosition().z - 0.5f));
-               k--;
+                int x_pos = i - ((mazeWidth*2)/2) -1, z_pos = j - ((mazeHeight*2)/2) -1;
+                drawHole(glm::vec3(x_pos + 0.5f, -0.5, z_pos + 0.5f));
+                
+                k--;
             } else {
                 drawFloor(glm::vec3(objectBodies[k]->getWorldPosition().x - 0.5f, objectBodies[k]->getWorldPosition().y, objectBodies[k]->getWorldPosition().z - 0.5f));
             }
