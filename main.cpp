@@ -37,49 +37,36 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
 
 void handleKeyboardInput(GLFWwindow* window) {
     if(glfwGetKey(window,GLFW_KEY_W)) {
-        gm->cameraAtZ += 0.25f;
-        gm->lookAtZ += 0.25f;
-    }
-    if(glfwGetKey(window,GLFW_KEY_S)) {
         gm->cameraAtZ -= 0.25f;
         gm->lookAtZ -= 0.25f;
     }
-    if(glfwGetKey(window,GLFW_KEY_D)) {
-        gm->cameraAtX -= 0.25f;
-        gm->lookAtX -= 0.25f;
+    if(glfwGetKey(window,GLFW_KEY_S)) {
+        gm->cameraAtZ += 0.25f;
+        gm->lookAtZ += 0.25f;
     }
-    if(glfwGetKey(window,GLFW_KEY_A)) {
+    if(glfwGetKey(window,GLFW_KEY_D)) {
         gm->cameraAtX += 0.25f;
         gm->lookAtX += 0.25f;
     }
-    /**if(glfwGetKey(window,GLFW_KEY_UP)) {
+    if(glfwGetKey(window,GLFW_KEY_A)) {
+        gm->cameraAtX -= 0.25f;
+        gm->lookAtX -= 0.25f;
+    }
+    if(glfwGetKey(window,GLFW_KEY_E)) { // POWER UP
         gm->playerBody->body->activate();
         btVector3 v = gm->playerBody->body->getLinearVelocity();
-        if (v.getZ() < 5.9f)
-            v.setZ(v.getZ() + 0.2f);
+
+        vec2 currentMousePos = getMousePosition(window);
+
+        vec2 windowDimensions = vec2(windowWidth, windowHeight);
+
+        int X = currentMousePos[0] - windowDimensions[0]/2;
+        int Z = currentMousePos[1] - windowDimensions[1]/2;
+
+        v.setX(X*0.1);
+        v.setZ(Z*0.1);
         gm->playerBody->body->setLinearVelocity(v);
     }
-    if(glfwGetKey(window,GLFW_KEY_DOWN)) {
-        gm->playerBody->body->activate();
-        btVector3 v = gm->playerBody->body->getLinearVelocity();
-        if (v.getZ() > -5.9f)
-            v.setZ(v.getZ() - 0.2f);
-        gm->playerBody->body->setLinearVelocity(v);
-    }
-    if(glfwGetKey(window,GLFW_KEY_RIGHT)) {
-        gm->playerBody->body->activate();
-        btVector3 v = gm->playerBody->body->getLinearVelocity();
-        if (v.getX() > -5.9f)
-            v.setX(v.getX() - 0.2f);
-        gm->playerBody->body->setLinearVelocity(v);
-    }
-    if(glfwGetKey(window,GLFW_KEY_LEFT)) {
-        gm->playerBody->body->activate();
-        btVector3 v = gm->playerBody->body->getLinearVelocity();
-        if (v.getX() < 5.9f)
-            v.setX(v.getX() + 0.2f);
-        gm->playerBody->body->setLinearVelocity(v);
-    }**/
 
     // mouse input
 	vec2 currentMousePos = getMousePosition(window);
@@ -90,7 +77,7 @@ void handleKeyboardInput(GLFWwindow* window) {
 		// std::cout << "distance: " << distanceFromCenter << std::endl;
 		gravity = normalize(gravity);
 		// std::cout << "New gravity, old:" << gravity.x*5*distanceFromCenter << ", "<< gravity.y*5*distanceFromCenter << std::endl;
-		gm->physicsWorld->dynamicsWorld->setGravity(btVector3(gravity.x*(3.14159265*7.25)*.8*distanceFromCenter,-10,gravity.y*(3.14159265*7.25)*.8*distanceFromCenter));
+		gm->physicsWorld->dynamicsWorld->setGravity(btVector3(gravity.x*(3.14159265*7.25)*.8*distanceFromCenter,-50,gravity.y*(3.14159265*7.25)*.8*distanceFromCenter));
 		lastMousePosition = currentMousePos;
 	}
 
@@ -141,7 +128,7 @@ int main( void ) {
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
-    Physics::PhysicsWorld pw = Physics::PhysicsWorld(btVector3(0, -10 , 0));
+    Physics::PhysicsWorld pw = Physics::PhysicsWorld(btVector3(0, -100 , 0));
     GameMaker gm1 = GameMaker(mazeHeight, mazeWidth, &pw);
     gm = &gm1;
 
@@ -187,9 +174,35 @@ int main( void ) {
 		gm->Model = glm::rotate(gm->Model, glm::radians(x), vec3(1,0,0));
 		gm->Model = glm::rotate(gm->Model, glm::radians(z), vec3(0,0,1));
 
-        if (gm->playerBody->getWorldPosition().y < -10.0f) {
+        btVector3 v = gm->playerBody->body->getLinearVelocity();
+        if (v.getY() > 10) { // POINT TO SKY IS NOT A OPTION
             gm->playerBody->body->activate();
-            btVector3 v = gm->playerBody->body->getLinearVelocity();
+            v.setY(10);
+            gm->playerBody->body->setLinearVelocity(v);
+        }
+        int maxVelocity = 20;
+        if (v.getX() > maxVelocity) { // SLOW DOWN !!! 
+            gm->playerBody->body->activate();
+            v.setX(maxVelocity);
+            gm->playerBody->body->setLinearVelocity(v);
+        }
+        if (v.getZ() > maxVelocity) { // SLOW DOWN !!! 
+            gm->playerBody->body->activate();
+            v.setZ(maxVelocity);
+            gm->playerBody->body->setLinearVelocity(v);
+        }
+        if (v.getX() < -maxVelocity) { // SLOW DOWN !!! 
+            gm->playerBody->body->activate();
+            v.setX(-maxVelocity);
+            gm->playerBody->body->setLinearVelocity(v);
+        }
+        if (v.getZ() < -maxVelocity) { // SLOW DOWN !!! 
+            gm->playerBody->body->activate();
+            v.setZ(-maxVelocity);
+            gm->playerBody->body->setLinearVelocity(v);
+        }
+        if (gm->playerBody->getWorldPosition().y < -5.0f) { // CAIU FORA DO MAPA
+            gm->playerBody->body->activate();
             v.setX(0.0f);
             v.setY(0.0f);
             v.setZ(0.0f);
@@ -197,6 +210,18 @@ int main( void ) {
 
             btTransform transform = gm->playerBody->body->getCenterOfMassTransform();
             transform.setOrigin(gm->start_point);
+            gm->playerBody->body->setCenterOfMassTransform(transform);
+        }
+        if (gm->playerBody->getWorldPosition().y > 0.5f) { // QUER VOAR !? NOT YET
+            std::cout << " Ball want to fly =O " << std::endl;
+            gm->playerBody->body->activate();
+            v.setY(0.0f);
+            gm->playerBody->body->setLinearVelocity(v);
+
+            btTransform transform = gm->playerBody->body->getCenterOfMassTransform();
+            glm::vec3 pos = gm->playerBody->getWorldPosition();
+            btVector3 newPos = btVector3(pos.x, 0.5f, pos.z);
+            transform.setOrigin(newPos);
             gm->playerBody->body->setCenterOfMassTransform(transform);
         }
 
