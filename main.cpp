@@ -2,6 +2,7 @@
 #include <chrono>
 
 #include "GameMaker.hpp"
+#include "MainMenu.hpp"
 
 GLFWwindow* window;
 
@@ -10,7 +11,11 @@ GLint windowHeight = 768;
 const float ASPECT = float(windowWidth)/windowHeight;
 int mazeHeight = 15, mazeWidth = 15;
 
+float mouse_press = false;
+
 GameMaker* gm;
+
+mainMenu* menu;
 
 vec2 lastMousePosition;
 
@@ -26,6 +31,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         gm->angulo += gm->delta;
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
         gm->angulo -= gm->delta;
+    if (action = GLFW_PRESS)
+        mouse_press = true;
+    else
+        mouse_press = false;
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
@@ -140,6 +149,13 @@ int main( void ) {
 
     gm->loadPhysics();
 
+    mainMenu menu1 = mainMenu();
+    menu = &menu1;
+    menu->load();
+
+    // Initialize our little text library with the Holstein font
+	initText2D( "Holstein.DDS" );
+
     // set the model-view-projection matrix
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -164,68 +180,87 @@ int main( void ) {
 
         handleKeyboardInput(window);
 
-        x = gm->physicsWorld->dynamicsWorld->getGravity().z();
-		z = -gm->physicsWorld->dynamicsWorld->getGravity().x();
+        if (menu->isOn) { // MENU
 
-        gm->setMVP(); // let us update the rotation angle
+            vec2 mousePos = getMousePosition(window);
+            menu->draw(mousePos, vec2(windowWidth, windowHeight), mouse_press);
 
-        // Rotate board
-		gm->Model = glm::translate(glm::mat4(1), glm::vec3(0,-8,0));
-		gm->Model = glm::rotate(gm->Model, glm::radians(x), vec3(1,0,0));
-		gm->Model = glm::rotate(gm->Model, glm::radians(z), vec3(0,0,1));
+        } else { // GAME
 
-        btVector3 v = gm->playerBody->body->getLinearVelocity();
-        if (v.getY() > 10) { // POINT TO SKY IS NOT A OPTION
-            gm->playerBody->body->activate();
-            v.setY(10);
-            gm->playerBody->body->setLinearVelocity(v);
-        }
-        int maxVelocity = 20;
-        if (v.getX() > maxVelocity) { // SLOW DOWN !!! 
-            gm->playerBody->body->activate();
-            v.setX(maxVelocity);
-            gm->playerBody->body->setLinearVelocity(v);
-        }
-        if (v.getZ() > maxVelocity) { // SLOW DOWN !!! 
-            gm->playerBody->body->activate();
-            v.setZ(maxVelocity);
-            gm->playerBody->body->setLinearVelocity(v);
-        }
-        if (v.getX() < -maxVelocity) { // SLOW DOWN !!! 
-            gm->playerBody->body->activate();
-            v.setX(-maxVelocity);
-            gm->playerBody->body->setLinearVelocity(v);
-        }
-        if (v.getZ() < -maxVelocity) { // SLOW DOWN !!! 
-            gm->playerBody->body->activate();
-            v.setZ(-maxVelocity);
-            gm->playerBody->body->setLinearVelocity(v);
-        }
-        if (gm->playerBody->getWorldPosition().y < -5.0f) { // CAIU FORA DO MAPA
-            gm->playerBody->body->activate();
-            v.setX(0.0f);
-            v.setY(0.0f);
-            v.setZ(0.0f);
-            gm->playerBody->body->setLinearVelocity(v);
+            x = gm->physicsWorld->dynamicsWorld->getGravity().z();
+            z = -gm->physicsWorld->dynamicsWorld->getGravity().x();
 
-            btTransform transform = gm->playerBody->body->getCenterOfMassTransform();
-            transform.setOrigin(gm->start_point);
-            gm->playerBody->body->setCenterOfMassTransform(transform);
-        }
-        if (gm->playerBody->getWorldPosition().y > 0.5f) { // QUER VOAR !? NOT YET
-            std::cout << " Ball want to fly =O " << std::endl;
-            gm->playerBody->body->activate();
-            v.setY(0.0f);
-            gm->playerBody->body->setLinearVelocity(v);
+            gm->setMVP(); // let us update the rotation angle
 
-            btTransform transform = gm->playerBody->body->getCenterOfMassTransform();
-            glm::vec3 pos = gm->playerBody->getWorldPosition();
-            btVector3 newPos = btVector3(pos.x, 0.5f, pos.z);
-            transform.setOrigin(newPos);
-            gm->playerBody->body->setCenterOfMassTransform(transform);
-        }
+            // Rotate board
+            gm->Model = glm::translate(glm::mat4(1), glm::vec3(0,-8,0));
+            gm->Model = glm::rotate(gm->Model, glm::radians(x), vec3(1,0,0));
+            gm->Model = glm::rotate(gm->Model, glm::radians(z), vec3(0,0,1));
 
-        gm->update(dt);
+            btVector3 v = gm->playerBody->body->getLinearVelocity();
+            if (v.getY() > 10) { // POINT TO SKY IS NOT A OPTION
+                gm->playerBody->body->activate();
+                v.setY(10);
+                gm->playerBody->body->setLinearVelocity(v);
+            }
+            int maxVelocity = 20;
+            if (v.getX() > maxVelocity) { // SLOW DOWN !!! 
+                gm->playerBody->body->activate();
+                v.setX(maxVelocity);
+                gm->playerBody->body->setLinearVelocity(v);
+            }
+            if (v.getZ() > maxVelocity) { // SLOW DOWN !!! 
+                gm->playerBody->body->activate();
+                v.setZ(maxVelocity);
+                gm->playerBody->body->setLinearVelocity(v);
+            }
+            if (v.getX() < -maxVelocity) { // SLOW DOWN !!! 
+                gm->playerBody->body->activate();
+                v.setX(-maxVelocity);
+                gm->playerBody->body->setLinearVelocity(v);
+            }
+            if (v.getZ() < -maxVelocity) { // SLOW DOWN !!! 
+                gm->playerBody->body->activate();
+                v.setZ(-maxVelocity);
+                gm->playerBody->body->setLinearVelocity(v);
+            }
+            if (gm->playerBody->getWorldPosition().y < -5.0f) { // CAIU FORA DO MAPA
+                gm->playerBody->body->activate();
+                v.setX(0.0f);
+                v.setY(0.0f);
+                v.setZ(0.0f);
+                gm->playerBody->body->setLinearVelocity(v);
+
+                btTransform transform = gm->playerBody->body->getCenterOfMassTransform();
+                transform.setOrigin(gm->start_point);
+                gm->playerBody->body->setCenterOfMassTransform(transform);
+            }
+            if (gm->playerBody->getWorldPosition().y > 0.5f) { // QUER VOAR !? NOT YET
+                std::cout << " Ball want to fly =O " << std::endl;
+                gm->playerBody->body->activate();
+                v.setY(0.0f);
+                gm->playerBody->body->setLinearVelocity(v);
+
+                btTransform transform = gm->playerBody->body->getCenterOfMassTransform();
+                glm::vec3 pos = gm->playerBody->getWorldPosition();
+                btVector3 newPos = btVector3(pos.x, 0.5f, pos.z);
+                transform.setOrigin(newPos);
+                gm->playerBody->body->setCenterOfMassTransform(transform);
+            }
+
+            gm->update(dt);
+
+            /**
+             * printText2D -> Text, x, y, size
+             * 
+             *   x and y will be coordinates in [0-800][0-600]
+             *  
+             **/
+            char text[256];
+            sprintf(text,"Score: %.2f", glfwGetTime() );
+            printText2D(text, 300, 550, 40);
+
+        }
 
         // Swap buffers
         glfwSwapBuffers(window);

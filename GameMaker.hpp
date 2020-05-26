@@ -23,6 +23,7 @@ using namespace glm;
 #include "common/shader.hpp"
 #include "common/texture.hpp"
 #include "common/objloader.hpp"
+#include "common/text2D.hpp"
 
 #include "MapGenerator.hpp"
 
