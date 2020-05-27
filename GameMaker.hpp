@@ -115,7 +115,7 @@ class GameMaker {
 
         void transferDataToGPUMemory(void);
         void loadPlayer();
-        void setMVP(void);
+        glm::mat4 setMVP(void);
         void drawCube(glm::vec3 trans);
         void drawFloor(glm::vec3 trans);
         void drawHole(glm::vec3 trans);

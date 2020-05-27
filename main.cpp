@@ -3,6 +3,7 @@
 
 #include "GameMaker.hpp"
 #include "MainMenu.hpp"
+#include "CubeMap.hpp"
 
 GLFWwindow* window;
 
@@ -14,8 +15,8 @@ int mazeHeight = 15, mazeWidth = 15;
 float mouse_press = false;
 
 GameMaker* gm;
-
 mainMenu* menu;
+CubeMap* cubeMap;
 
 vec2 lastMousePosition;
 
@@ -153,6 +154,10 @@ int main( void ) {
     menu = &menu1;
     menu->load();
 
+    CubeMap cubeMap1 = CubeMap();
+    cubeMap = &cubeMap1;
+    cubeMap->load();
+
     // Initialize our little text library with the Holstein font
 	initText2D("Holstein.DDS");
 
@@ -180,6 +185,9 @@ int main( void ) {
 
         handleKeyboardInput(window);
 
+        glm::mat4 MVP = gm->setMVP(); // let us update the rotation angle
+        cubeMap->draw(MVP);
+
         if (menu->isOn) { // MENU
 
             vec2 mousePos = getMousePosition(window);
@@ -189,8 +197,6 @@ int main( void ) {
 
             x = gm->physicsWorld->dynamicsWorld->getGravity().z();
             z = -gm->physicsWorld->dynamicsWorld->getGravity().x();
-
-            gm->setMVP(); // let us update the rotation angle
 
             // Rotate board
             gm->Model = glm::translate(glm::mat4(1), glm::vec3(0,-8,0));

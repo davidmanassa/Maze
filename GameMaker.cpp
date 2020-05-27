@@ -166,7 +166,7 @@ void GameMaker::transferHoleToGPUMemory(void) {
     
 }
 
-void GameMaker::setMVP(void) {
+glm::mat4 GameMaker::setMVP(void) {
 
     // Get a handle for our "MVP" uniform
     MatrixID = glGetUniformLocation(programID, "MVP");
@@ -183,6 +183,8 @@ void GameMaker::setMVP(void) {
 
     // Model matrix depends on the object, so it is defined somewhere in the program
     Model = glm::rotate(Model, glm::radians(angulo), glm::vec3(0,1,0));
+
+    return Projection * View * Model;
 
 }
 
