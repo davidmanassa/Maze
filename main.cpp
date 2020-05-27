@@ -17,7 +17,7 @@ const float ASPECT = float(windowWidth)/windowHeight;
 int mazeHeight = 15, mazeWidth = 15;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
 float lastX = (float)windowWidth / 2.0;
 float lastY = (float)windowHeight / 2.0;
 float mouse_press = false;
