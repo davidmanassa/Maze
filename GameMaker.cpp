@@ -23,6 +23,7 @@ GameMaker::GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw) {
 
 }
 
+
 void GameMaker::transferDataToGPUMemory(void) {
 
      programID2 = LoadShaders("TransformVertexShader.vert", "ColorFragmentShader.frag");
@@ -363,8 +364,6 @@ void GameMaker::loadPlayer() {
 void GameMaker::drawPlayer(GLfloat scale) {
 
     glUseProgram(programID);
-
-    
 
     glm::mat4 model1;
 

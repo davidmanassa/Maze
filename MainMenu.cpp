@@ -1,4 +1,4 @@
-#include "mainMenu.hpp"
+#include "MainMenu.hpp"
 
 
 void mainMenu::load() {
@@ -7,10 +7,10 @@ void mainMenu::load() {
     shader = LoadShaders("VertexShader.vert", "FragmentShader.frag");
 
     // load Textures
-    texture_normal = loadBMP_custom("crate.bmp");
+    texture_normal = loadBMP_custom("start1.bmp");
     textureID_normal = glGetUniformLocation(texture_normal, "myTextureSampler");
 
-    texture_hover = loadBMP_custom("wall.bmp");
+    texture_hover = loadBMP_custom("start2.bmp");
     textureID_hover = glGetUniformLocation(texture_hover, "myTextureSampler");
 
     texture_pressed = loadBMP_custom("sand.bmp");
@@ -24,7 +24,8 @@ void mainMenu::load() {
     };
     
     static const GLfloat g_uv_buffer_data_button[] = {
-        1.0f, 0.0f,  1.0f, 1.0f,  0.0f, 0.0f,
+        // NÃO MEXER
+        0.0f, 1.0f,  0.0f, 0.0f,  1.0f, 1.0f,
         1.0f, 0.0f,  0.0f, 0.0f,  1.0f, 1.0f,
     };
 
