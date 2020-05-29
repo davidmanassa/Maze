@@ -12,57 +12,57 @@ void CubeMap::load() {
     // load Textures
     texture = (GLuint*) malloc(6 * sizeof(GLuint));
 
-    texture[0] = loadBMP_custom("images/cubemap/top.bmp");
-    texture[1] = loadBMP_custom("images/cubemap/left.bmp");
-    texture[2] = loadBMP_custom("images/cubemap/front.bmp");
-    texture[3] = loadBMP_custom("images/cubemap/right.bmp");
-    texture[4] = loadBMP_custom("images/cubemap/back.bmp");
-    texture[5] = loadBMP_custom("images/cubemap/bottom.bmp");
+    texture[0] = loadBMP_custom("images/cubemap/bottom.bmp");
+    texture[1] = loadBMP_custom("images/cubemap/top.bmp");
+    texture[2] = loadBMP_custom("images/cubemap/left.bmp");
+    texture[3] = loadBMP_custom("images/cubemap/front.bmp");
+    texture[4] = loadBMP_custom("images/cubemap/right.bmp");
+    texture[5] = loadBMP_custom("images/cubemap/back.bmp");
 
     // ORDER -> top - left - front - right - back - bottom
 
     float cubeVertices[] = {
-        -50.0f, -50.0f, -50.0f, // bottom
-         50.0f, -50.0f, -50.0f, 
-         50.0f,  50.0f, -50.0f,  
-         50.0f,  50.0f, -50.0f, 
-        -50.0f,  50.0f, -50.0f,  
-        -50.0f, -50.0f, -50.0f, 
+        -30.0f, -30.0f, -30.0f, // bottom
+         30.0f, -30.0f, -30.0f, 
+         30.0f,  30.0f, -30.0f,  
+         30.0f,  30.0f, -30.0f, 
+        -30.0f,  30.0f, -30.0f,  
+        -30.0f, -30.0f, -30.0f, 
 
-        -50.0f, -50.0f,  50.0f,  // top
-         50.0f, -50.0f,  50.0f,  
-         50.0f,  50.0f,  50.0f,  
-         50.0f,  50.0f,  50.0f,  
-        -50.0f,  50.0f,  50.0f,  
-        -50.0f, -50.0f,  50.0f, 
+        -30.0f, -30.0f,  30.0f,  // top
+         30.0f, -30.0f,  30.0f,  
+         30.0f,  30.0f,  30.0f,  
+         30.0f,  30.0f,  30.0f,  
+        -30.0f,  30.0f,  30.0f,  
+        -30.0f, -30.0f,  30.0f, 
 
-        -50.0f,  50.0f,  50.0f,  
-        -50.0f,  50.0f, -50.0f,
-        -50.0f, -50.0f, -50.0f, 
-        -50.0f, -50.0f, -50.0f, 
-        -50.0f, -50.0f,  50.0f,  
-        -50.0f,  50.0f,  50.0f,  
+        -30.0f,  30.0f,  30.0f,  
+        -30.0f,  30.0f, -30.0f,
+        -30.0f, -30.0f, -30.0f, 
+        -30.0f, -30.0f, -30.0f, 
+        -30.0f, -30.0f,  30.0f,  
+        -30.0f,  30.0f,  30.0f,  
 
-         50.0f,  50.0f,  50.0f,
-         50.0f,  50.0f, -50.0f, 
-         50.0f, -50.0f, -50.0f,  
-         50.0f, -50.0f, -50.0f,  
-         50.0f, -50.0f,  50.0f,  
-         50.0f,  50.0f,  50.0f,  
+         30.0f,  30.0f,  30.0f,
+         30.0f,  30.0f, -30.0f, 
+         30.0f, -30.0f, -30.0f,  
+         30.0f, -30.0f, -30.0f,  
+         30.0f, -30.0f,  30.0f,  
+         30.0f,  30.0f,  30.0f,  
 
-        -50.0f, -50.0f, -50.0f,  
-         50.0f, -50.0f, -50.0f, 
-         50.0f, -50.0f,  50.0f,  
-         50.0f, -50.0f,  50.0f,  
-        -50.0f, -50.0f,  50.0f,  
-        -50.0f, -50.0f, -50.0f,  
+        -30.0f, -30.0f, -30.0f,  
+         30.0f, -30.0f, -30.0f, 
+         30.0f, -30.0f,  30.0f,  
+         30.0f, -30.0f,  30.0f,  
+        -30.0f, -30.0f,  30.0f,  
+        -30.0f, -30.0f, -30.0f,  
 
-        -50.0f,  50.0f, -50.0f,  
-         50.0f,  50.0f, -50.0f,  
-         50.0f,  50.0f,  50.0f,  
-         50.0f,  50.0f,  50.0f,  
-        -50.0f,  50.0f,  50.0f,  
-        -50.0f,  50.0f, -50.0f,  
+        -30.0f,  30.0f, -30.0f,  
+         30.0f,  30.0f, -30.0f,  
+         30.0f,  30.0f,  30.0f,  
+         30.0f,  30.0f,  30.0f,  
+        -30.0f,  30.0f,  30.0f,  
+        -30.0f,  30.0f, -30.0f,  
     };
 
     float cubeUVs[] = {
@@ -125,10 +125,9 @@ void CubeMap::load() {
 
 void CubeMap::draw(glm::mat4 MVP, GLuint shader) {
 
-
     glUseProgram(shader);
 
-    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 30.0f, 0.0f));
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(-15.0f, 25.0f, -15.0f));
     glm::mat4 MVP2 = MVP * translate;
 
     for (int i = 0; i < 6; i++) {

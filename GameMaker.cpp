@@ -1,5 +1,7 @@
 #include "GameMaker.hpp"
 
+#include <glm/gtx/string_cast.hpp>
+
 GameMaker::GameMaker(int mazeHeight, int mazeWidth) {  
 
     GameMaker::mazeHeight = mazeHeight;
@@ -177,12 +179,8 @@ glm::mat4 GameMaker::setMVP(void) {
             glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
         );
 
-    
-
     // Model matrix depends on the object, so it is defined somewhere in the program
     Model = glm::rotate(Model, glm::radians(angulo), glm::vec3(0,1,0));
-
-    // std::cout << " " << cameraAt.x << " " << cameraAt.y << " " <<  cameraAt.z << " " <<  lookAt.x << " " <<  lookAt.y << " " <<  lookAt.z << " " << std::endl;
 
     return Projection * View * Model;
 
@@ -194,10 +192,10 @@ void GameMaker::drawCube(glm::vec3 trans) {
 
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
     //glm::mat4 Trans = glm::translate(glm::mat4(1.0f), glm::vec3(transX, 0.0f, transZ));
-    
+
     MVP =  Projection * View * Model * Trans;
-    
-    // Send our transformation to the currently bound shader,
+
+    // Send our transformation to the currently Vid shader,
     // in the "MVP" uniform, which is now MVP
     glUniformMatrix4fv(glGetUniformLocation(shaderTexture, "MVP"), 1, GL_FALSE, &MVP[0][0]);
     // Bind our texture in Texture Unit 0
@@ -245,6 +243,7 @@ void GameMaker::drawFloor(glm::vec3 trans) {
     
     MVP =  Projection * View * Model * Trans;
     
+    
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform, which is now MVP
     glUniformMatrix4fv(glGetUniformLocation(shaderTexture, "MVP"), 1, GL_FALSE, &MVP[0][0]);
@@ -277,7 +276,7 @@ void GameMaker::drawFloor(glm::vec3 trans) {
 
     /**
 
-      glUseProgram(programID);
+    glUseProgram(programID);
 
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
     //glm::mat4 Trans = glm::translate(glm::mat4(1.0f), glm::vec3(transX, 0.0f, transZ));
@@ -410,12 +409,12 @@ GameMaker::~GameMaker() {
 
 void GameMaker::cleanupDataFromGPU() {
     glDeleteBuffers(1, &cubeVertexBuffer);
-    glDeleteBuffers(1, &cubeColorbuffer);
+   // glDeleteBuffers(1, &cubeColorbuffer);
     glDeleteBuffers(1, &floorVertexBuffer);
-    glDeleteBuffers(1, &floorColorBuffer);
-    glDeleteBuffers(1, &playerColorBuffer);
+    //glDeleteBuffers(1, &floorColorBuffer);
+   // glDeleteBuffers(1, &playerColorBuffer);
     glDeleteBuffers(1, &playerVertexBuffer);
-    glDeleteBuffers(1, &holeColorBuffer);
+   // glDeleteBuffers(1, &holeColorBuffer);
     glDeleteBuffers(1, &holeVertexBuffer);
     glDeleteVertexArrays(1, &VertexArrayID);
     glDeleteProgram(shaderTexture);
@@ -435,6 +434,7 @@ void GameMaker::loadPlayer() {
 void GameMaker::drawPlayer() {
 
     player->setMVP(Projection, View, Model);
+
     player->setScale(vec3(0.5f, 0.5f, 0.5f));
     player->setTranslate(playerBody->getWorldPosition());
     player->drawWithLampShader(vec3(1.0f, 1.0f, 1.0f), shaderLamp);
@@ -472,8 +472,6 @@ void GameMaker::loadPhysics() {
 
 void GameMaker::drawMap() {
 
-    cubeMap->draw((Projection * View), shaderTexture);
-
     char** map = mg.getMatrixForOpenGL();
 
     int k = 0;
@@ -496,7 +494,9 @@ void GameMaker::drawMap() {
         }
     }
 
-    // drawPlayer();
+    cubeMap->draw(MVP, shaderTexture);
+
+    drawPlayer();
 
     std::cout << " gravity: " << physicsWorld->dynamicsWorld->getGravity().getX() << " " << physicsWorld->dynamicsWorld->getGravity().getY() << " " << physicsWorld->dynamicsWorld->getGravity().getZ() << " " << std::endl;
     std::cout << " velocity: " << playerBody->body->getLinearVelocity().getX() << " " << playerBody->body->getLinearVelocity().getY() << " " << playerBody->body->getLinearVelocity().getZ() << " " << std::endl;
