@@ -26,8 +26,8 @@ using namespace glm;
 #include "common/text2D.hpp"
 
 #include "MapGenerator.hpp"
-
 #include "Physics.hpp"
+#include "Object.hpp"
 
 /**
         0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    // cyan
@@ -59,8 +59,6 @@ class GameMaker {
 
         GLuint holeColorBuffer;
 
-        int size = 0;
-
         MapGenerator mg = MapGenerator();
 
         void transferCubeToGPUMemory(void);
@@ -68,9 +66,12 @@ class GameMaker {
         void transferHoleToGPUMemory(void);
 
     public:
+
+        Object* player;
+
         GLuint Texture;
         GLuint TextureID;
-         GLuint Texture_floor;
+        GLuint Texture_floor;
         GLuint TextureID_floor;
         GLuint Texture_hole;
         GLuint TextureID_hole;
@@ -93,6 +94,9 @@ class GameMaker {
         // GLSL program from the shaders
         GLuint programID;
          GLuint programID2;
+        GLuint lampShader;
+        GLuint materialShader;
+        GLuint materialAndTextureShader;
 
         // Matrix id of the MVP
         GLuint MatrixID;
@@ -107,11 +111,13 @@ class GameMaker {
         glm::mat4 Projection = glm::mat4(1.0f);
         glm::mat4 View = glm::mat4(1.0f);
 
-        GLfloat cameraAtX = 0, cameraAtY = 20, cameraAtZ = 0.001;
-        GLfloat lookAtX = 0, lookAtY = 0, lookAtZ = 0;
+        vec3 cameraAt;
+        vec3 lookAt;
 
         GameMaker(int mazeHeight, int mazeWidth);
         GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw);
+
+        ~GameMaker();
 
         void transferDataToGPUMemory(void);
         void loadPlayer();
@@ -121,7 +127,7 @@ class GameMaker {
         void drawHole(glm::vec3 trans);
         void cleanupDataFromGPU();
         void drawMap();
-        void drawPlayer(GLfloat scale);
+        void drawPlayer();
 
         void attachPhysicsWorld(Physics::PhysicsWorld* pw) {physicsWorld = pw;};
         void attachPlayerBody(Physics::PhysicsBody* pb1) {playerBody = pb1;};

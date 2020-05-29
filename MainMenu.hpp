@@ -24,7 +24,7 @@ using namespace glm;
 #include "common/texture.hpp"
 #include "common/text2D.hpp"
 
-class mainMenu {
+class MainMenu {
 
     public:
 

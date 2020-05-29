@@ -1,7 +1,7 @@
 #include "MainMenu.hpp"
 
 
-void mainMenu::load() {
+void MainMenu::load() {
 
     // Init Shader
     shader = LoadShaders("shaders/VertexShader.vert", "shaders/FragmentShader.frag");
@@ -39,7 +39,7 @@ void mainMenu::load() {
 
 }
 
-void mainMenu::setMVP() {
+void MainMenu::setMVP() {
 
     MatrixID = glGetUniformLocation(shader, "MVP");
     
@@ -60,7 +60,7 @@ void mainMenu::setMVP() {
 
 }
 
-void mainMenu::draw(vec2 mousePos, vec2 windowDimensions, bool pressed) { // DO THIS FOR EACH BOTTON
+void MainMenu::draw(vec2 mousePos, vec2 windowDimensions, bool pressed) { // DO THIS FOR EACH BOTTON
 
     setMVP();
 
