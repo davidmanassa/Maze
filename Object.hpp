@@ -48,8 +48,6 @@ class Object {
         // CBO
         GLuint colorBuffer;
 
-        GLuint MatrixID;
-
 
         int vertex_number;
         int color_vertex_number;

@@ -24,6 +24,8 @@ using namespace glm;
 #include "common/texture.hpp"
 #include "common/text2D.hpp"
 
+#include "CubeMap.hpp"
+
 class MainMenu {
 
     public:
@@ -31,17 +33,17 @@ class MainMenu {
         bool isOn = true; // Start by Main menu
 
         void load();
-        void draw(vec2 mousePos, vec2 windowDimensions, bool pressed);
+        void draw(vec2 mousePos, vec2 windowDimensions, bool pressed, GLuint shader);
 
     private:
+
+        CubeMap* cubeMap;
 
         void setMVP();
 
         glm::mat4 MVP;
 
         GLuint MatrixID; // Matrix id of the MVP
-
-        GLuint shader;
 
         GLuint texture_normal;
         GLuint textureID_normal;

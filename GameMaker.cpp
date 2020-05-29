@@ -25,17 +25,21 @@ GameMaker::GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw) {
 
 void GameMaker::transferDataToGPUMemory(void) {
 
-    programID2 = LoadShaders("shaders/transform.vs", "shaders/transform.fs");
-    programID = LoadShaders("shaders/VertexShader.vert", "shaders/FragmentShader.frag");
-    lampShader = LoadShaders("shaders/lampShader.vs", "shaders/lampShader.fs");
-    materialShader = LoadShaders("shaders/materials.vs", "shaders/materials.fs");
-    materialAndTextureShader = LoadShaders("shaders/lampShader.vs", "shaders/lampShader.fs");
+    //programID2 = LoadShaders("shaders/transform.vs", "shaders/transform.fs");
+    shaderTexture = LoadShaders("shaders/VertexShader.vert", "shaders/FragmentShader.frag");
+    shaderLamp = LoadShaders("shaders/lampShader.vs", "shaders/lampShader.fs");
+    //materialShader = LoadShaders("shaders/materials.vs", "shaders/materials.fs");
+    //materialAndTextureShader = LoadShaders("shaders/lampShader.vs", "shaders/lampShader.fs");
+
+    
 
     transferCubeToGPUMemory();
     transferFloorToGPUMemory();
     transferHoleToGPUMemory();
     loadPlayer();
 
+    cubeMap = new CubeMap();
+    cubeMap->load();
 
 }
 
@@ -50,10 +54,7 @@ void GameMaker::update(double dt){
 
 void GameMaker::transferCubeToGPUMemory(void) {
 
-	Texture = loadBMP_custom("images/crate.bmp");
-	
-	// Get a handle for our "myTextureSampler" uniform
-	TextureID  = glGetUniformLocation(programID, "myTextureSampler");
+	Texture_crate = loadBMP_custom("images/crate.bmp");
 
    static const GLfloat cube[] = {
       //  0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, // base
@@ -110,9 +111,6 @@ void GameMaker::transferCubeToGPUMemory(void) {
 void GameMaker::transferFloorToGPUMemory(void) {
 
     Texture_floor = loadBMP_custom("images/wall.bmp");
-	
-	// Get a handle for our "myTextureSampler" uniform
-	TextureID_floor  = glGetUniformLocation(programID, "myTextureSampler");
 
    static const GLfloat floor[] = {
         0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, // base
@@ -141,14 +139,11 @@ void GameMaker::transferFloorToGPUMemory(void) {
 void GameMaker::transferHoleToGPUMemory(void) {
 
     Texture_hole = loadBMP_custom("images/hole.bmp");
-	
-	// Get a handle for our "myTextureSampler" uniform
-	TextureID_hole  = glGetUniformLocation(programID, "myTextureSampler");
 
-   static const GLfloat floor[] = {
-        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, // base
-        1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f
-    };
+    static const GLfloat floor[] = {
+            0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, // base
+            1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f
+        };
     
     // One color for each vertex. They were generated randomly.
     static const GLfloat g_uv_buffer_data_floor[] = {
@@ -171,9 +166,6 @@ void GameMaker::transferHoleToGPUMemory(void) {
     
 }
 glm::mat4 GameMaker::setMVP(void) {
-
-    // Get a handle for our "MVP" uniform
-    MatrixID = glGetUniformLocation(programID, "MVP");
     
     // Projection matrix : 45∞ Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
@@ -190,7 +182,7 @@ glm::mat4 GameMaker::setMVP(void) {
     // Model matrix depends on the object, so it is defined somewhere in the program
     Model = glm::rotate(Model, glm::radians(angulo), glm::vec3(0,1,0));
 
-    std::cout << " " << cameraAt.x << " " << cameraAt.y << " " <<  cameraAt.z << " " <<  lookAt.x << " " <<  lookAt.y << " " <<  lookAt.z << " " << std::endl;
+    // std::cout << " " << cameraAt.x << " " << cameraAt.y << " " <<  cameraAt.z << " " <<  lookAt.x << " " <<  lookAt.y << " " <<  lookAt.z << " " << std::endl;
 
     return Projection * View * Model;
 
@@ -198,7 +190,8 @@ glm::mat4 GameMaker::setMVP(void) {
 
 void GameMaker::drawCube(glm::vec3 trans) {
     
-    glUseProgram(programID);
+    glUseProgram(shaderTexture);
+
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
     //glm::mat4 Trans = glm::translate(glm::mat4(1.0f), glm::vec3(transX, 0.0f, transZ));
     
@@ -206,12 +199,12 @@ void GameMaker::drawCube(glm::vec3 trans) {
     
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform, which is now MVP
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(shaderTexture, "MVP"), 1, GL_FALSE, &MVP[0][0]);
     // Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Texture);
+	glBindTexture(GL_TEXTURE_2D, Texture_crate);
 	// Set our "myTextureSampler" sampler to use Texture Unit 0
-	glUniform1i(TextureID, 0);
+	glUniform1i(glGetUniformLocation(shaderTexture, "myTextureSampler"), 0);
     
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
@@ -238,7 +231,7 @@ void GameMaker::drawCube(glm::vec3 trans) {
 
 void GameMaker::drawFloor(glm::vec3 trans) {
 
-    glUseProgram(programID);
+    glUseProgram(shaderTexture);
 
   
     //glm::mat4 model;
@@ -254,12 +247,12 @@ void GameMaker::drawFloor(glm::vec3 trans) {
     
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform, which is now MVP
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(shaderTexture, "MVP"), 1, GL_FALSE, &MVP[0][0]);
     // Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Texture_floor);
 	// Set our "myTextureSampler" sampler to use Texture Unit 0
-	glUniform1i(TextureID_floor, 0);
+	glUniform1i(glGetUniformLocation(shaderTexture, "myTextureSampler"), 0);
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, floorVertexBuffer);
@@ -366,8 +359,8 @@ void GameMaker::drawFloor(glm::vec3 trans) {
 }
 
 void GameMaker::drawHole(glm::vec3 trans) {
-   glUseProgram(programID);
 
+   glUseProgram(shaderTexture);
   
     //glm::mat4 model;
     //model = glm::rotate(glm::mat4(1.0f), glm::radians(z), vec3(0,0,1));
@@ -382,12 +375,12 @@ void GameMaker::drawHole(glm::vec3 trans) {
     
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform, which is now MVP
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(shaderTexture, "MVP"), 1, GL_FALSE, &MVP[0][0]);
     // Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Texture_hole);
 	// Set our "myTextureSampler" sampler to use Texture Unit 0
-	glUniform1i(TextureID_hole, 0);
+	glUniform1i(glGetUniformLocation(shaderTexture, "myTextureSampler"), 0);
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, holeVertexBuffer);
@@ -403,7 +396,7 @@ void GameMaker::drawHole(glm::vec3 trans) {
 			GL_FALSE,                         // normalized?
 			0,                                // stride
 			(void*)0                          // array buffer offset
-		);;
+		);
     
     glDrawArrays(GL_TRIANGLES, 0, 2*3);
     
@@ -425,11 +418,11 @@ void GameMaker::cleanupDataFromGPU() {
     glDeleteBuffers(1, &holeColorBuffer);
     glDeleteBuffers(1, &holeVertexBuffer);
     glDeleteVertexArrays(1, &VertexArrayID);
-    glDeleteProgram(programID);
-    glDeleteProgram(programID2);
-    glDeleteProgram(lampShader);
-    glDeleteProgram(materialShader);
-    glDeleteProgram(materialAndTextureShader);
+    glDeleteProgram(shaderTexture);
+   // glDeleteProgram(programID2);
+    glDeleteProgram(shaderLamp);
+   // glDeleteProgram(materialShader);
+   // glDeleteProgram(materialAndTextureShader);
 }
 
 void GameMaker::loadPlayer() {
@@ -444,7 +437,7 @@ void GameMaker::drawPlayer() {
     player->setMVP(Projection, View, Model);
     player->setScale(vec3(0.5f, 0.5f, 0.5f));
     player->setTranslate(playerBody->getWorldPosition());
-    player->drawWithLampShader(vec3(1.0f, 1.0f, 1.0f), lampShader);
+    player->drawWithLampShader(vec3(1.0f, 1.0f, 1.0f), shaderLamp);
 
 }
 
@@ -478,6 +471,8 @@ void GameMaker::loadPhysics() {
 }
 
 void GameMaker::drawMap() {
+
+    cubeMap->draw((Projection * View), shaderTexture);
 
     char** map = mg.getMatrixForOpenGL();
 

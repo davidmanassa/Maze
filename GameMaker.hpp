@@ -28,6 +28,7 @@ using namespace glm;
 #include "MapGenerator.hpp"
 #include "Physics.hpp"
 #include "Object.hpp"
+#include "CubeMap.hpp"
 
 /**
         0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    // cyan
@@ -43,6 +44,8 @@ using namespace glm;
 class GameMaker {
 
     private:
+
+        CubeMap* cubeMap;
 
         int mazeHeight, mazeWidth;
 
@@ -69,18 +72,16 @@ class GameMaker {
 
         Object* player;
 
-        GLuint Texture;
-        GLuint TextureID;
+        GLuint Texture_crate;
         GLuint Texture_floor;
-        GLuint TextureID_floor;
         GLuint Texture_hole;
-        GLuint TextureID_hole;
         GLuint Texture_player;
-        GLuint TextureID_player;
+
         GLuint uvbuffer;
         GLuint uvbuffer_floor;
         GLuint uvbuffer_hole;
-         GLuint uvbuffer_player;
+        GLuint uvbuffer_player;
+
         btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
 
         Physics::PhysicsWorld* physicsWorld;
@@ -92,14 +93,10 @@ class GameMaker {
         GLuint VertexArrayID;
 
         // GLSL program from the shaders
-        GLuint programID;
-         GLuint programID2;
-        GLuint lampShader;
-        GLuint materialShader;
-        GLuint materialAndTextureShader;
-
-        // Matrix id of the MVP
-        GLuint MatrixID;
+        GLuint shaderTexture;
+        GLuint shaderLamp;
+        GLuint shaderMaterial;
+        GLuint shaderMaterialAndTexture;
 
         glm::mat4 MVP;
 
@@ -134,6 +131,10 @@ class GameMaker {
 
         void update(double dt);
         void loadPhysics();
+
+        GLuint getTextureShader() {
+            return shaderTexture;
+        }
 
 };
 

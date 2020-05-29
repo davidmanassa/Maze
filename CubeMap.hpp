@@ -28,19 +28,16 @@ class CubeMap {
     public:
 
         void load();
-        void draw(glm::mat4 MVP);
+        void draw(glm::mat4 MVP, GLuint shader);
+
+        ~CubeMap();
 
     private:
 
-        GLuint shader;
-
         GLuint* texture;
-        GLuint* textureID;
 
         GLuint cubeVertexBuffer;
         GLuint cubeUVbuffer;
-
-        GLuint MatrixID;
 
 };
 

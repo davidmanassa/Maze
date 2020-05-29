@@ -107,7 +107,7 @@ void Object::drawWithMaterialShader(vec3 light_pos, vec3 view_pos, GLuint shader
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform, which is now MVP
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(shader, "MVP"), 1, GL_FALSE, &MVP[0][0]);
     // Bind our texture in Texture Unit 0
 
    // if (texture != NULL) {

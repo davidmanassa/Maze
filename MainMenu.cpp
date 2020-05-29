@@ -3,19 +3,15 @@
 
 void MainMenu::load() {
 
-    // Init Shader
-    shader = LoadShaders("shaders/VertexShader.vert", "shaders/FragmentShader.frag");
+    cubeMap = new CubeMap();
+    cubeMap->load();
 
     // load Textures
     texture_normal = loadBMP_custom("images/start1.bmp");
-    textureID_normal = glGetUniformLocation(texture_normal, "myTextureSampler");
 
     texture_hover = loadBMP_custom("images/start2.bmp");
-    textureID_hover = glGetUniformLocation(texture_hover, "myTextureSampler");
 
     texture_pressed = loadBMP_custom("images/sand.bmp");
-    textureID_pressed = glGetUniformLocation(texture_pressed, "myTextureSampler");
-	
 
     // Data to GPU memory
     static const GLfloat button[] = { // TWO TRIANGLES -> A RECTANGLE
@@ -40,8 +36,6 @@ void MainMenu::load() {
 }
 
 void MainMenu::setMVP() {
-
-    MatrixID = glGetUniformLocation(shader, "MVP");
     
     // Projection matrix : 45∞ Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
@@ -60,9 +54,10 @@ void MainMenu::setMVP() {
 
 }
 
-void MainMenu::draw(vec2 mousePos, vec2 windowDimensions, bool pressed) { // DO THIS FOR EACH BOTTON
+void MainMenu::draw(vec2 mousePos, vec2 windowDimensions, bool pressed, GLuint shader) { // DO THIS FOR EACH BOTTON
 
     setMVP();
+    cubeMap->draw(MVP, shader);
 
     // draw menus
     glUseProgram(shader);
@@ -87,7 +82,7 @@ void MainMenu::draw(vec2 mousePos, vec2 windowDimensions, bool pressed) { // DO 
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform, which is now MVP
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(shader, "MVP"), 1, GL_FALSE, &MVP[0][0]);
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
     
@@ -105,14 +100,15 @@ void MainMenu::draw(vec2 mousePos, vec2 windowDimensions, bool pressed) { // DO 
     if (!isHover) {
         glBindTexture(GL_TEXTURE_2D, texture_normal);
         // Set our "myTextureSampler" sampler to use Texture Unit 0
-        glUniform1i(textureID_normal, 0);
+        glUniform1i(glGetUniformLocation(shader, "myTextureSampler"), 0);
     } else if (pressed) {
         glBindTexture(GL_TEXTURE_2D, texture_pressed);
-        glUniform1i(textureID_pressed, 0);
+        glUniform1i(glGetUniformLocation(shader, "myTextureSampler"), 0);
         isOn = false;
+        //delete cubeMap;
     } else {
         glBindTexture(GL_TEXTURE_2D, texture_hover);
-        glUniform1i(textureID_hover, 0);
+        glUniform1i(glGetUniformLocation(shader, "myTextureSampler"), 0);
     }
 
     // 1rst attribute buffer : vertices

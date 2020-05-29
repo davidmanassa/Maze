@@ -148,9 +148,6 @@ int main( void ) {
     menu = new MainMenu();
     menu->load();
 
-    cubeMap = new CubeMap();
-    cubeMap->load();
-
     gm->transferDataToGPUMemory();
     gm->loadPhysics();
 
@@ -181,13 +178,11 @@ int main( void ) {
 
         handleKeyboardInput(window);
 
-        glm::mat4 MVP = gm->setMVP(); // let us update the rotation angle
-        cubeMap->draw(MVP);
 
         if (menu->isOn) { // MENU
 
             vec2 mousePos = getMousePosition(window);
-            menu->draw(mousePos, vec2(windowWidth, windowHeight), mouse_press);
+            menu->draw(mousePos, vec2(windowWidth, windowHeight), mouse_press, gm->getTextureShader());
 
         } else { // GAME
 
