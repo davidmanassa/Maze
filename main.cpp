@@ -3,6 +3,7 @@
 
 #include "GameMaker.hpp"
 #include "MainMenu.hpp"
+#include "CubeMap.hpp"
 
 GLFWwindow* window;
 
@@ -14,8 +15,8 @@ int mazeHeight = 15, mazeWidth = 15;
 float mouse_press = false;
 
 GameMaker* gm;
-
-mainMenu* menu;
+MainMenu* menu;
+CubeMap* cubeMap;
 
 vec2 lastMousePosition;
 
@@ -39,27 +40,27 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
     if(yoffset > 0)
-        gm->cameraAtY -= 0.25;
+        gm->cameraAt.y -= 0.25;
     else
-        gm->cameraAtY += 0.25;
+        gm->cameraAt.y += 0.25;
 }
 
 void handleKeyboardInput(GLFWwindow* window) {
     if(glfwGetKey(window,GLFW_KEY_W)) {
-        gm->cameraAtZ -= 0.25f;
-        gm->lookAtZ -= 0.25f;
+        gm->cameraAt.z -= 0.25f;
+        gm->lookAt.z -= 0.25f;
     }
     if(glfwGetKey(window,GLFW_KEY_S)) {
-        gm->cameraAtZ += 0.25f;
-        gm->lookAtZ += 0.25f;
+        gm->cameraAt.z += 0.25f;
+        gm->lookAt.z += 0.25f;
     }
     if(glfwGetKey(window,GLFW_KEY_D)) {
-        gm->cameraAtX += 0.25f;
-        gm->lookAtX += 0.25f;
+        gm->cameraAt.x += 0.25f;
+        gm->lookAt.x += 0.25f;
     }
     if(glfwGetKey(window,GLFW_KEY_A)) {
-        gm->cameraAtX -= 0.25f;
-        gm->lookAtX -= 0.25f;
+        gm->cameraAt.x -= 0.25f;
+        gm->lookAt.x -= 0.25f;
     }
     if(glfwGetKey(window,GLFW_KEY_E)) { // POWER UP
         gm->playerBody->body->activate();
@@ -138,20 +139,17 @@ int main( void ) {
     glDepthFunc(GL_LESS);
 
     Physics::PhysicsWorld pw = Physics::PhysicsWorld(btVector3(0, -100 , 0));
-    GameMaker gm1 = GameMaker(mazeHeight, mazeWidth, &pw);
-    gm = &gm1;
+    gm = new GameMaker(mazeHeight, mazeWidth, &pw);
 
     // transfer my data (vertices, colors, and shaders) to GPU side
     glGenVertexArrays(1, &gm->VertexArrayID);
     glBindVertexArray(gm->VertexArrayID);
 
-    gm->transferDataToGPUMemory();
-
-    gm->loadPhysics();
-
-    mainMenu menu1 = mainMenu();
-    menu = &menu1;
+    menu = new MainMenu();
     menu->load();
+
+    gm->transferDataToGPUMemory();
+    gm->loadPhysics();
 
     // Initialize our little text library with the Holstein font
 	initText2D("Holstein.DDS");
@@ -180,17 +178,16 @@ int main( void ) {
 
         handleKeyboardInput(window);
 
+
         if (menu->isOn) { // MENU
 
             vec2 mousePos = getMousePosition(window);
-            menu->draw(mousePos, vec2(windowWidth, windowHeight), mouse_press);
+            menu->draw(mousePos, vec2(windowWidth, windowHeight), mouse_press, gm->getTextureShader());
 
         } else { // GAME
 
             x = gm->physicsWorld->dynamicsWorld->getGravity().z();
             z = -gm->physicsWorld->dynamicsWorld->getGravity().x();
-
-            gm->setMVP(); // let us update the rotation angle
 
             // Rotate board
             gm->Model = glm::translate(glm::mat4(1), glm::vec3(0,-8,0));
@@ -240,7 +237,6 @@ int main( void ) {
                 gm->playerBody->body->activate();
                 v.setY(0.0f);
                 gm->playerBody->body->setLinearVelocity(v);
-
                 btTransform transform = gm->playerBody->body->getCenterOfMassTransform();
                 glm::vec3 pos = gm->playerBody->getWorldPosition();
                 btVector3 newPos = btVector3(pos.x, 0.5f, pos.z);

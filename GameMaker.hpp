@@ -26,8 +26,9 @@ using namespace glm;
 #include "common/text2D.hpp"
 
 #include "MapGenerator.hpp"
-
 #include "Physics.hpp"
+#include "Object.hpp"
+#include "CubeMap.hpp"
 
 /**
         0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    // cyan
@@ -44,6 +45,8 @@ class GameMaker {
 
     private:
 
+        CubeMap* cubeMap;
+
         int mazeHeight, mazeWidth;
 
         // Vertex buffer object (VBO)
@@ -59,8 +62,6 @@ class GameMaker {
 
         GLuint holeColorBuffer;
 
-        int size = 0;
-
         MapGenerator mg = MapGenerator();
 
         void transferCubeToGPUMemory(void);
@@ -68,18 +69,19 @@ class GameMaker {
         void transferHoleToGPUMemory(void);
 
     public:
-        GLuint Texture;
-        GLuint TextureID;
-         GLuint Texture_floor;
-        GLuint TextureID_floor;
+
+        Object* player;
+
+        GLuint Texture_crate;
+        GLuint Texture_floor;
         GLuint Texture_hole;
-        GLuint TextureID_hole;
         GLuint Texture_player;
-        GLuint TextureID_player;
+
         GLuint uvbuffer;
         GLuint uvbuffer_floor;
         GLuint uvbuffer_hole;
-         GLuint uvbuffer_player;
+        GLuint uvbuffer_player;
+
         btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
 
         Physics::PhysicsWorld* physicsWorld;
@@ -91,11 +93,10 @@ class GameMaker {
         GLuint VertexArrayID;
 
         // GLSL program from the shaders
-        GLuint programID;
-         GLuint programID2;
-
-        // Matrix id of the MVP
-        GLuint MatrixID;
+        GLuint shaderTexture;
+        GLuint shaderLamp;
+        GLuint shaderMaterial;
+        GLuint shaderMaterialAndTexture;
 
         glm::mat4 MVP;
 
@@ -107,27 +108,33 @@ class GameMaker {
         glm::mat4 Projection = glm::mat4(1.0f);
         glm::mat4 View = glm::mat4(1.0f);
 
-        GLfloat cameraAtX = 0, cameraAtY = 20, cameraAtZ = 0.001;
-        GLfloat lookAtX = 0, lookAtY = 0, lookAtZ = 0;
+        vec3 cameraAt;
+        vec3 lookAt;
 
         GameMaker(int mazeHeight, int mazeWidth);
         GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw);
 
+        ~GameMaker();
+
         void transferDataToGPUMemory(void);
         void loadPlayer();
-        void setMVP(void);
+        glm::mat4 setMVP(void);
         void drawCube(glm::vec3 trans);
         void drawFloor(glm::vec3 trans);
         void drawHole(glm::vec3 trans);
         void cleanupDataFromGPU();
         void drawMap();
-        void drawPlayer(GLfloat scale);
+        void drawPlayer();
 
         void attachPhysicsWorld(Physics::PhysicsWorld* pw) {physicsWorld = pw;};
         void attachPlayerBody(Physics::PhysicsBody* pb1) {playerBody = pb1;};
 
         void update(double dt);
         void loadPhysics();
+
+        GLuint getTextureShader() {
+            return shaderTexture;
+        }
 
 };
 
