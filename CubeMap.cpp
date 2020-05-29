@@ -14,10 +14,11 @@ void CubeMap::load() {
 
     texture[0] = loadBMP_custom("images/cubemap/bottom.bmp");
     texture[1] = loadBMP_custom("images/cubemap/top.bmp");
-    texture[2] = loadBMP_custom("images/cubemap/left.bmp");
-    texture[3] = loadBMP_custom("images/cubemap/front.bmp");
-    texture[4] = loadBMP_custom("images/cubemap/right.bmp");
-    texture[5] = loadBMP_custom("images/cubemap/back.bmp");
+    texture[2] = loadBMP_custom("images/cubemap/front.bmp");
+    texture[3] = loadBMP_custom("images/cubemap/back.bmp");
+    texture[4] = loadBMP_custom("images/cubemap/left.bmp");
+    texture[5] = loadBMP_custom("images/cubemap/right.bmp");
+    
 
     // ORDER -> top - left - front - right - back - bottom
 
@@ -36,28 +37,28 @@ void CubeMap::load() {
         -30.0f,  30.0f,  30.0f,  
         -30.0f, -30.0f,  30.0f, 
 
-        -30.0f,  30.0f,  30.0f,  
+        -30.0f,  30.0f,  30.0f,  // front
         -30.0f,  30.0f, -30.0f,
         -30.0f, -30.0f, -30.0f, 
         -30.0f, -30.0f, -30.0f, 
         -30.0f, -30.0f,  30.0f,  
         -30.0f,  30.0f,  30.0f,  
 
-         30.0f,  30.0f,  30.0f,
+         30.0f,  30.0f,  30.0f, //back
          30.0f,  30.0f, -30.0f, 
          30.0f, -30.0f, -30.0f,  
          30.0f, -30.0f, -30.0f,  
          30.0f, -30.0f,  30.0f,  
          30.0f,  30.0f,  30.0f,  
 
-        -30.0f, -30.0f, -30.0f,  
+        -30.0f, -30.0f, -30.0f,  //left
          30.0f, -30.0f, -30.0f, 
          30.0f, -30.0f,  30.0f,  
          30.0f, -30.0f,  30.0f,  
         -30.0f, -30.0f,  30.0f,  
         -30.0f, -30.0f, -30.0f,  
 
-        -30.0f,  30.0f, -30.0f,  
+        -30.0f,  30.0f, -30.0f,  // right
          30.0f,  30.0f, -30.0f,  
          30.0f,  30.0f,  30.0f,  
          30.0f,  30.0f,  30.0f,  

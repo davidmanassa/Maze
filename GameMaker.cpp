@@ -1,7 +1,8 @@
 #include "GameMaker.hpp"
 
-#include <glm/gtx/string_cast.hpp>
-
+//#include <glm/gtx/string_cast.hpp>
+int i = 0;
+float j = 0.0;
 GameMaker::GameMaker(int mazeHeight, int mazeWidth) {  
 
     GameMaker::mazeHeight = mazeHeight;
@@ -140,7 +141,12 @@ void GameMaker::transferFloorToGPUMemory(void) {
 
 void GameMaker::transferHoleToGPUMemory(void) {
 
-    Texture_hole = loadBMP_custom("images/hole.bmp");
+    Texture_hole = (GLuint*) malloc(4 * sizeof(GLuint));
+
+    Texture_hole[0] = loadBMP_custom("images/hole_1.bmp");
+    Texture_hole[1] = loadBMP_custom("images/hole_2.bmp");
+    Texture_hole[2] = loadBMP_custom("images/hole_3.bmp");
+    Texture_hole[3] = loadBMP_custom("images/hole_4.bmp");
 
     static const GLfloat floor[] = {
             0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, // base
@@ -360,7 +366,7 @@ void GameMaker::drawFloor(glm::vec3 trans) {
 void GameMaker::drawHole(glm::vec3 trans) {
 
    glUseProgram(shaderTexture);
-  
+    
     //glm::mat4 model;
     //model = glm::rotate(glm::mat4(1.0f), glm::radians(z), vec3(0,0,1));
     //model = glm::translate(glm::mat4(1.0f), playerBody->getWorldPosition());
@@ -377,7 +383,18 @@ void GameMaker::drawHole(glm::vec3 trans) {
     glUniformMatrix4fv(glGetUniformLocation(shaderTexture, "MVP"), 1, GL_FALSE, &MVP[0][0]);
     // Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Texture_hole);
+
+    if(i>=3)
+        i=0;
+	glBindTexture(GL_TEXTURE_2D, Texture_hole[i]);
+    if(j==0.0||j==1.0||j==2.0||j==3.0)
+        i = i+1;
+    j=j+0.002;
+    if(j>=3)
+        j= 0.0;
+    //std::cout<< "J: "<<j<<" \n";
+
+
 	// Set our "myTextureSampler" sampler to use Texture Unit 0
 	glUniform1i(glGetUniformLocation(shaderTexture, "myTextureSampler"), 0);
     // 1rst attribute buffer : vertices

@@ -222,6 +222,8 @@ int main( void ) {
                 gm->playerBody->body->setLinearVelocity(v);
             }
             if (gm->playerBody->getWorldPosition().y < -5.0f) { // CAIU FORA DO MAPA
+                //PlaySound(TEXT("suction.wav"), NULL, SND_FILENAME);
+                system("canberra-gtk-play -f suction.wav");
                 gm->playerBody->body->activate();
                 v.setX(0.0f);
                 v.setY(0.0f);

@@ -30,7 +30,7 @@ using namespace glm;
 #include "Object.hpp"
 #include "CubeMap.hpp"
 
-#include <glm/gtx/string_cast.hpp>
+//#include <glm/gtx/string_cast.hpp>
 
 /**
         0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    // cyan
@@ -81,7 +81,7 @@ class GameMaker {
 
         GLuint Texture_crate;
         GLuint Texture_floor;
-        GLuint Texture_hole;
+        GLuint *Texture_hole;
         GLuint Texture_player;
 
         btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
