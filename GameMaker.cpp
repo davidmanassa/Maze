@@ -23,11 +23,10 @@ GameMaker::GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw) {
 
 }
 
-
 void GameMaker::transferDataToGPUMemory(void) {
 
-     programID2 = LoadShaders("TransformVertexShader.vert", "ColorFragmentShader.frag");
-     programID = LoadShaders("VertexShader.vert", "FragmentShader.frag" );
+     programID2 = LoadShaders("shaders/TransformVertexShader.vert", "shaders/ColorFragmentShader.frag");
+     programID = LoadShaders("shaders/VertexShader.vert", "shaders/FragmentShader.frag" );
 
     transferCubeToGPUMemory();
     transferFloorToGPUMemory();
@@ -47,7 +46,7 @@ void GameMaker::update(double dt){
 
 void GameMaker::transferCubeToGPUMemory(void) {
 
-	Texture = loadBMP_custom("crate.bmp");
+	Texture = loadBMP_custom("images/crate.bmp");
 	
 	// Get a handle for our "myTextureSampler" uniform
 	TextureID  = glGetUniformLocation(programID, "myTextureSampler");
@@ -106,7 +105,7 @@ void GameMaker::transferCubeToGPUMemory(void) {
 
 void GameMaker::transferFloorToGPUMemory(void) {
 
-    Texture_floor = loadBMP_custom("wall.bmp");
+    Texture_floor = loadBMP_custom("images/wood_floor.bmp");
 	
 	// Get a handle for our "myTextureSampler" uniform
 	TextureID_floor  = glGetUniformLocation(programID, "myTextureSampler");
@@ -136,7 +135,7 @@ void GameMaker::transferFloorToGPUMemory(void) {
 }
 void GameMaker::transferHoleToGPUMemory(void) {
 
-    Texture_hole = loadBMP_custom("hole.bmp");
+    Texture_hole = loadBMP_custom("images/hole.bmp");
 	
 	// Get a handle for our "myTextureSampler" uniform
 	TextureID_hole  = glGetUniformLocation(programID, "myTextureSampler");
@@ -190,6 +189,7 @@ void GameMaker::setMVP(void) {
 void GameMaker::drawCube(glm::vec3 trans) {
     
     glUseProgram(programID);
+
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
     //glm::mat4 Trans = glm::translate(glm::mat4(1.0f), glm::vec3(transX, 0.0f, transZ));
     
@@ -331,7 +331,7 @@ void GameMaker::cleanupDataFromGPU() {
 }
 
 void GameMaker::loadPlayer() {
-    Texture_player = loadBMP_custom("sand.bmp");
+    Texture_player = loadBMP_custom("images/sand.bmp");
 	
 	// Get a handle for our "myTextureSampler" uniform
 	TextureID_player  = glGetUniformLocation(programID, "myTextureSampler");
@@ -364,6 +364,8 @@ void GameMaker::loadPlayer() {
 void GameMaker::drawPlayer(GLfloat scale) {
 
     glUseProgram(programID);
+
+    
 
     glm::mat4 model1;
 

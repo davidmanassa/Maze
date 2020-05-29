@@ -4,16 +4,16 @@
 void mainMenu::load() {
 
     // Init Shader
-    shader = LoadShaders("VertexShader.vert", "FragmentShader.frag");
+    shader = LoadShaders("shaders/VertexShader.vert", "shaders/FragmentShader.frag");
 
     // load Textures
-    texture_normal = loadBMP_custom("start1.bmp");
+    texture_normal = loadBMP_custom("images/start1.bmp");
     textureID_normal = glGetUniformLocation(texture_normal, "myTextureSampler");
 
-    texture_hover = loadBMP_custom("start2.bmp");
+    texture_hover = loadBMP_custom("images/start2.bmp");
     textureID_hover = glGetUniformLocation(texture_hover, "myTextureSampler");
 
-    texture_pressed = loadBMP_custom("sand.bmp");
+    texture_pressed = loadBMP_custom("images/sand.bmp");
     textureID_pressed = glGetUniformLocation(texture_pressed, "myTextureSampler");
 	
 
@@ -24,7 +24,6 @@ void mainMenu::load() {
     };
     
     static const GLfloat g_uv_buffer_data_button[] = {
-        // NÃO MEXER
         0.0f, 1.0f,  0.0f, 0.0f,  1.0f, 1.0f,
         1.0f, 0.0f,  0.0f, 0.0f,  1.0f, 1.0f,
     };

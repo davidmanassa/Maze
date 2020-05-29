@@ -1,25 +1,16 @@
 #include <iostream>
 #include <chrono>
-#include <vector>
 
 #include "GameMaker.hpp"
 #include "MainMenu.hpp"
-#include "stb_image.h"
-#include "shader_s.h"
-#include "camera.h"
 
 GLFWwindow* window;
 
 GLint windowWidth = 1024;
 GLint windowHeight = 768;
-GLint cmap_programID;
 const float ASPECT = float(windowWidth)/windowHeight;
 int mazeHeight = 15, mazeWidth = 15;
 
-// camera
-Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
-float lastX = (float)windowWidth / 2.0;
-float lastY = (float)windowHeight / 2.0;
 float mouse_press = false;
 
 GameMaker* gm;
@@ -108,39 +99,6 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 
 }
 
- 
-unsigned int loadCubemap(std::vector<std::string> faces)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-    int width, height, nrChannels;
-    for (unsigned int i = 0; i < faces.size(); i++)
-    {
-        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-        if (data)
-        {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
-                         0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
-            );
-            stbi_image_free(data);
-        }
-        else
-        {
-            std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
-            stbi_image_free(data);
-        }
-    }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-    return textureID;
-} 
-
 int main( void ) {
 
     // Initialise GLFW
@@ -169,7 +127,7 @@ int main( void ) {
     glfwSetWindowSizeCallback(window, window_size_callback);
     
     // White background
-    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     
     // Clear the screen
     glClear( GL_COLOR_BUFFER_BIT );
@@ -179,82 +137,6 @@ int main( void ) {
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
-   /* std::vector<std::string> faces{
-    "right.png",
-    "left.png",
-    "top.png",
-    "bottom.png",
-    "front.png",
-    "back.png",
-};*/
-    std::vector<std::string> faces
-    {
-        "skybox/right.jpg",
-        "skybox/left.jpg",
-        "skybox/top.jpg",
-        "skybox/bottom.jpg",
-        "skybox/front.jpg",
-        "skybox/back.jpg"
-    };
-
-GLfloat skyboxVertices[] = {
-    // positions          
-    -10.0f,  10.0f, -10.0f,
-    -10.0f, -10.0f, -10.0f,
-     10.0f, -10.0f, -10.0f,
-     10.0f, -10.0f, -10.0f,
-     10.0f,  10.0f, -10.0f,
-    -10.0f,  10.0f, -10.0f,
-
-    -10.0f, -10.0f,  10.0f,
-    -10.0f, -10.0f, -10.0f,
-    -10.0f,  10.0f, -10.0f,
-    -10.0f,  10.0f, -10.0f,
-    -10.0f,  10.0f,  10.0f,
-    -10.0f, -10.0f,  10.0f,
-
-     10.0f, -10.0f, -10.0f,
-     10.0f, -10.0f,  10.0f,
-     10.0f,  10.0f,  10.0f,
-     10.0f,  10.0f,  10.0f,
-     10.0f,  10.0f, -10.0f,
-     10.0f, -10.0f, -10.0f,
-
-    -10.0f, -10.0f,  10.0f,
-    -10.0f,  10.0f,  10.0f,
-     10.0f,  10.0f,  10.0f,
-     10.0f,  10.0f,  10.0f,
-     10.0f, -10.0f,  10.0f,
-    -10.0f, -10.0f,  10.0f,
-
-    -10.0f,  10.0f, -10.0f,
-     10.0f,  10.0f, -10.0f,
-     10.0f,  10.0f,  10.0f,
-     10.0f,  10.0f,  10.0f,
-    -10.0f,  10.0f,  10.0f,
-    -10.0f,  10.0f, -10.0f,
-
-    -10.0f, -10.0f, -10.0f,
-    -10.0f, -10.0f,  10.0f,
-     10.0f, -10.0f, -10.0f,
-     10.0f, -10.0f, -10.0f,
-    -10.0f, -10.0f,  10.0f,
-     10.0f, -10.0f,  10.0f
-};
-
-// skybox VAO
-    unsigned int skyboxVAO, skyboxVBO;
-    glGenVertexArrays(1, &skyboxVAO);
-    glGenBuffers(1, &skyboxVBO);
-    glBindVertexArray(skyboxVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    unsigned int cubemapTexture = loadCubemap(faces); 
-
-    Shader skyboxShader("cubemap.vertexshader", "cubemap.fragshader");
-    
     Physics::PhysicsWorld pw = Physics::PhysicsWorld(btVector3(0, -100 , 0));
     GameMaker gm1 = GameMaker(mazeHeight, mazeWidth, &pw);
     gm = &gm1;
@@ -272,7 +154,7 @@ GLfloat skyboxVertices[] = {
     menu->load();
 
     // Initialize our little text library with the Holstein font
-	initText2D( "Holstein.DDS" );
+	initText2D("Holstein.DDS");
 
     // set the model-view-projection matrix
     glfwSetMouseButtonCallback(window, mouse_button_callback);
@@ -287,12 +169,6 @@ GLfloat skyboxVertices[] = {
     double dt;
 	float x, z;
 
-    skyboxShader.use();
-    skyboxShader.setInt("skybox", 0);
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 view = camera.GetViewMatrix();
-    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float) windowWidth / (float) windowHeight, 0.1f, 100.0f);
-
     // render scene for each frame
     do {
         
@@ -303,8 +179,6 @@ GLfloat skyboxVertices[] = {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         handleKeyboardInput(window);
-
-      
 
         if (menu->isOn) { // MENU
 
@@ -387,21 +261,6 @@ GLfloat skyboxVertices[] = {
             printText2D(text, 300, 550, 40);
 
         }
-
-         // draw skybox as last
-        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-        skyboxShader.use();
-        view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
-        skyboxShader.setMat4("view", view);
-        skyboxShader.setMat4("projection", projection);
-
-        // skybox cube
-        glBindVertexArray(skyboxVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-        glDepthFunc(GL_LESS); // set depth function back to default
 
         // Swap buffers
         glfwSwapBuffers(window);
