@@ -30,6 +30,8 @@ using namespace glm;
 #include "Object.hpp"
 #include "CubeMap.hpp"
 
+#include <glm/gtx/string_cast.hpp>
+
 /**
         0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    0.0f,  1.0f,  1.0f,    // cyan
         0.0f,  1.0f,  0.0f,    0.0f,  1.0f,  0.0f,    0.0f,  1.0f,  0.0f,    // green
@@ -53,14 +55,19 @@ class GameMaker {
         GLuint cubeVertexBuffer;
         GLuint floorVertexBuffer;
         GLuint playerVertexBuffer;
-         GLuint holeVertexBuffer;
+        GLuint holeVertexBuffer;
+
+        GLuint uvbuffer;
+        GLuint uvbuffer_floor;
+        GLuint uvbuffer_hole;
+        GLuint uvbuffer_player;
 
         // color buffer object (CBO)
-        GLuint cubeColorbuffer;
-        GLuint floorColorBuffer;
-        GLuint playerColorBuffer;
+        //GLuint cubeColorbuffer;
+        //GLuint floorColorBuffer;
+        //GLuint playerColorBuffer;
 
-        GLuint holeColorBuffer;
+        //GLuint holeColorBuffer;
 
         MapGenerator mg = MapGenerator();
 
@@ -76,11 +83,6 @@ class GameMaker {
         GLuint Texture_floor;
         GLuint Texture_hole;
         GLuint Texture_player;
-
-        GLuint uvbuffer;
-        GLuint uvbuffer_floor;
-        GLuint uvbuffer_hole;
-        GLuint uvbuffer_player;
 
         btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
 
@@ -98,7 +100,7 @@ class GameMaker {
         GLuint shaderMaterial;
         GLuint shaderMaterialAndTexture;
 
-        glm::mat4 MVP;
+        glm::mat4 MVP = glm::mat4(1.0f);
 
         glm::mat4 Model = glm::mat4(1.0f);
 
@@ -108,8 +110,8 @@ class GameMaker {
         glm::mat4 Projection = glm::mat4(1.0f);
         glm::mat4 View = glm::mat4(1.0f);
 
-        vec3 cameraAt;
-        vec3 lookAt;
+        vec3 cameraAt = vec3(0.0f, 30.0f, 0.001f);
+        vec3 lookAt = vec3(0.0f, 0.0f, 0.0f);
 
         GameMaker(int mazeHeight, int mazeWidth);
         GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw);
