@@ -28,18 +28,20 @@ GameMaker::GameMaker(int mazeHeight, int mazeWidth, Physics::PhysicsWorld *pw) {
 
 void GameMaker::transferDataToGPUMemory(void) {
 
-    //programID2 = LoadShaders("shaders/transform.vs", "shaders/transform.fs");
     shaderTexture = LoadShaders("shaders/VertexShader.vert", "shaders/FragmentShader.frag");
     shaderLamp = LoadShaders("shaders/lampShader.vs", "shaders/lampShader.fs");
-    //materialShader = LoadShaders("shaders/materials.vs", "shaders/materials.fs");
-    //materialAndTextureShader = LoadShaders("shaders/lampShader.vs", "shaders/lampShader.fs");
-
-    
+    shaderMaterial = LoadShaders("shaders/materials.vs", "shaders/materials.fs");
+    shaderMaterialAndTexture = LoadShaders("shaders/lampShader.vs", "shaders/lampShader.fs");
+    shaderBasicLightning = LoadShaders("shaders/basic_lighting.vs", "shaders/basic_lighting.fs");
+    shaderStandard = LoadShaders("shaders/StandardShading.vs", "shaders/StandardShading.fs");
+    shaderPhong = LoadShaders("shaders/phong_ilumination.vs", "shaders/phong_ilumination.fs");
 
     transferCubeToGPUMemory();
     transferFloorToGPUMemory();
     transferHoleToGPUMemory();
     loadPlayer();
+
+    uvmap = loadDDS("uvmap.DDS");
 
     cubeMap = new CubeMap();
     cubeMap->load();
@@ -52,6 +54,12 @@ void GameMaker::update(double dt){
 
     setMVP();
     drawMap();
+
+    vec3 playerPos = playerBody->getWorldPosition();
+    if ((int) playerPos.x == (int) end_point.getX() && (int) playerPos.z == (int) end_point.getZ()) {
+        // win
+        win = true;
+    }
 
 }
 
@@ -111,7 +119,13 @@ void GameMaker::transferCubeToGPUMemory(void) {
     
 }
 
-void GameMaker::transferFloorToGPUMemory(void) {
+void GameMaker::transferFloorToGPUMemory(void) { 
+    
+    GameMaker::floor = new Object();
+    floor->loadOBJtoGPU("floor.obj", vec3(1.0f, 1.0f, 1.0f));
+    floor->loadLight(vec3(1.0f, 1.0f, 1.0f), vec3(1.0f, 1.0f, 1.0f));
+    
+    /**
 
     Texture_floor = loadBMP_custom("images/wall.bmp");
 
@@ -128,6 +142,13 @@ void GameMaker::transferFloorToGPUMemory(void) {
 
     };
 
+    static const GLfloat normals[] = {
+
+        0.0f,0.0f,  1.0f,0.0f,  0.0f,1.0f,
+        1.0f,1.0f,  1.0f,0.0f,  0.0f,1.0f,
+
+    };
+
     // Move vertex data to video memory; specifically to VBO called vertexbuffer
     glGenBuffers(1, &floorVertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, floorVertexBuffer);
@@ -136,6 +157,7 @@ void GameMaker::transferFloorToGPUMemory(void) {
     glGenBuffers(1, &uvbuffer_floor);
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_floor);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data_floor), g_uv_buffer_data_floor, GL_STATIC_DRAW);
+    **/
     
 }
 
@@ -147,6 +169,7 @@ void GameMaker::transferHoleToGPUMemory(void) {
     Texture_hole[1] = loadBMP_custom("images/hole_2.bmp");
     Texture_hole[2] = loadBMP_custom("images/hole_3.bmp");
     Texture_hole[3] = loadBMP_custom("images/hole_4.bmp");
+
 
     static const GLfloat floor[] = {
             0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, // base
@@ -163,16 +186,20 @@ void GameMaker::transferHoleToGPUMemory(void) {
 
     };
 
-    // Move vertex data to video memory; specifically to VBO called vertexbuffer
+    GameMaker::hole = new Object();    
+    hole->loadToGPU(floor, g_uv_buffer_data_floor, 3*2);
+
+    /** // Move vertex data to video memory; specifically to VBO called vertexbuffer
     glGenBuffers(1, &holeVertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, holeVertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(floor), floor, GL_STATIC_DRAW);
     
     glGenBuffers(1, &uvbuffer_hole);
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_hole);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data_floor), g_uv_buffer_data_floor, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data_floor), g_uv_buffer_data_floor, GL_STATIC_DRAW);**/
     
 }
+
 glm::mat4 GameMaker::setMVP(void) {
     
     // Projection matrix : 45∞ Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
@@ -233,138 +260,34 @@ void GameMaker::drawCube(glm::vec3 trans) {
     glDisableVertexAttribArray(1);
 }
 
-void GameMaker::drawFloor(glm::vec3 trans) {
+void GameMaker::drawFloor(glm::vec3 trans, bool start, bool end) {
 
-    glUseProgram(shaderTexture);
+    floor->setMVP(Projection, View, Model);
 
-  
-    //glm::mat4 model;
-    //model = glm::rotate(glm::mat4(1.0f), glm::radians(z), vec3(0,0,1));
-    //model = glm::translate(glm::mat4(1.0f), playerBody->getWorldPosition());
-    //model = glm::scale(game.getPlayer()->model, vec3(.038,.038,.038));
+    floor->setTranslate(trans);
+    //floor->drawWithPhongShader(cameraAt, playerBody->getWorldPosition(), shaderPhong);
+    //floor->drawWithMaterialShader(playerBody->getWorldPosition(), cameraAt, shaderMaterial);
+    //floor->drawWithStandardShader(uvmap, vec3(1.0f, 10.0f, 1.0f), shaderStandard );
 
-
-    glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
-
-    
-    MVP =  Projection * View * Model * Trans;
-    
-    
-    // Send our transformation to the currently bound shader,
-    // in the "MVP" uniform, which is now MVP
-    glUniformMatrix4fv(glGetUniformLocation(shaderTexture, "MVP"), 1, GL_FALSE, &MVP[0][0]);
-    // Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Texture_floor);
-	// Set our "myTextureSampler" sampler to use Texture Unit 0
-	glUniform1i(glGetUniformLocation(shaderTexture, "myTextureSampler"), 0);
-    // 1rst attribute buffer : vertices
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, floorVertexBuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    
-    // 2nd attribute buffer : UVs
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_floor);
-		glVertexAttribPointer(
-			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-			2,                                // size : U+V => 2
-			GL_FLOAT,                         // type
-			GL_FALSE,                         // normalized?
-			0,                                // stride
-			(void*)0                          // array buffer offset
-		);;
-    
-    glDrawArrays(GL_TRIANGLES, 0, 2*3);
-    
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-
-    /**
-
-    glUseProgram(programID);
-
-    glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
-    //glm::mat4 Trans = glm::translate(glm::mat4(1.0f), glm::vec3(transX, 0.0f, transZ));
-    
-    MVP =  Projection * View * Model * Trans;
-    
-    // Send our transformation to the currently bound shader,
-    // in the "MVP" uniform, which is now MVP
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-    // Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Texture);
-	// Set our "myTextureSampler" sampler to use Texture Unit 0
-	glUniform1i(TextureID, 0);
-
-
-    glUseProgram(programID);
-
-    glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
-    //glm::mat4 Trans = glm::translate(glm::mat4(1.0f), glm::vec3(transX, 0.0f, transZ));
-    
-    MVP = Projection * View * Model * Trans;
-
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    if (start)
+        floor->drawWithBasicLightningShader(playerBody->getWorldPosition(), vec3(1,1,1), vec3(0,1,0), shaderBasicLightning);
+    else if (end)
+        floor->drawWithBasicLightningShader(playerBody->getWorldPosition(), vec3(1,1,1), vec3(1,0,0), shaderBasicLightning);
+    else {
+        floor->drawWithStandardShader(Texture_floor, playerBody->getWorldPosition(), shaderStandard);
+        //floor->drawWithBasicLightningShader(playerBody->getWorldPosition(), vec3(1,1,1), vec3(1,1,1), shaderBasicLightning);
+    }
 
     
-    
-    glUseProgram(materialShader);
-
-    glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
-    
-    // MVP =  Projection * View * Model * Trans;
-
-    glm::mat4 model = Model * Trans;
-
-    vec3 light_pos = playerBody->getWorldPosition();
-    vec3 light_color_ambient = vec3(1.0f);
-    vec3 light_color_diffuse = vec3(1.0f);
-
-
-    glUniform3f(glGetUniformLocation(materialShader, "light.position"), light_pos.x, light_pos.y, light_pos.z);
-    glUniform3f(glGetUniformLocation(materialShader, "light.ambient"), light_color_ambient.x, light_color_ambient.y, light_color_ambient.z);
-    glUniform3f(glGetUniformLocation(materialShader, "light.diffuse"), light_color_diffuse.x, light_color_diffuse.y, light_color_diffuse.z);
-
-    glUniform3f(glGetUniformLocation(materialShader, "viewPos"), cameraAt.x, cameraAt.y, cameraAt.z);
-
-    glUniform3f(glGetUniformLocation(materialShader, "material.ambient"), 0.135, 0.2225, 0.1575);
-    glUniform3f(glGetUniformLocation(materialShader, "material.diffuse"), 0.54, 0.89, 0.63);
-    glUniform3f(glGetUniformLocation(materialShader, "material.specular"), 0.316228, 0.316228, 0.316228);
-    glUniform1f(glGetUniformLocation(materialShader, "material.shininess"), 0.1 * 128.0);
-
-    glUniformMatrix4fv(glGetUniformLocation(materialShader, "projection"), 1, GL_FALSE, &Projection[0][0]);
-    glUniformMatrix4fv(glGetUniformLocation(materialShader, "view"), 1, GL_FALSE, &View[0][0]);
-    glUniformMatrix4fv(glGetUniformLocation(materialShader, "model"), 1, GL_FALSE, &model[0][0]);
-
-    
-   
-    // Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Texture_floor);
-	// Set our "myTextureSampler" sampler to use Texture Unit 0
-	glUniform1i(TextureID_floor, 0);
-    
-    // 1rst attribute buffer : vertices
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, floorVertexBuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    
-    // 2nd attribute buffer : UVs
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_floor);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    
-    glDrawArrays(GL_TRIANGLES, 0, 2*3);
-    
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    **/
 }
 
 void GameMaker::drawHole(glm::vec3 trans) {
 
+   hole->setMVP(Projection, View, Model);
+   hole->setTranslate(trans);
+   hole->drawWithTextureShader(Texture_hole[0], shaderTexture);
+
+/**
    glUseProgram(shaderTexture);
     
     //glm::mat4 model;
@@ -417,7 +340,7 @@ void GameMaker::drawHole(glm::vec3 trans) {
     glDrawArrays(GL_TRIANGLES, 0, 2*3);
     
     glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(1);**/
 }
 
 GameMaker::~GameMaker() {
@@ -426,19 +349,18 @@ GameMaker::~GameMaker() {
 
 void GameMaker::cleanupDataFromGPU() {
     glDeleteBuffers(1, &cubeVertexBuffer);
-   // glDeleteBuffers(1, &cubeColorbuffer);
     glDeleteBuffers(1, &floorVertexBuffer);
-    //glDeleteBuffers(1, &floorColorBuffer);
-   // glDeleteBuffers(1, &playerColorBuffer);
     glDeleteBuffers(1, &playerVertexBuffer);
-   // glDeleteBuffers(1, &holeColorBuffer);
     glDeleteBuffers(1, &holeVertexBuffer);
+    glDeleteBuffers(1, &uvbuffer);
+    glDeleteBuffers(1, &uvbuffer_floor);
+    glDeleteBuffers(1, &uvbuffer_hole);
+    glDeleteBuffers(1, &uvbuffer_player);
     glDeleteVertexArrays(1, &VertexArrayID);
     glDeleteProgram(shaderTexture);
-   // glDeleteProgram(programID2);
     glDeleteProgram(shaderLamp);
-   // glDeleteProgram(materialShader);
-   // glDeleteProgram(materialAndTextureShader);
+    glDeleteProgram(shaderMaterial);
+    glDeleteProgram(shaderMaterialAndTexture);
 }
 
 void GameMaker::loadPlayer() {
@@ -479,12 +401,16 @@ void GameMaker::loadPhysics() {
                 btCollisionShape* colShape = physicsWorld->createBoxShape(btVector3(0.5f, 0.001f, 0.5f));
                 Physics::PhysicsBody* pb = physicsWorld->createPhysicsBody(btVector3(x_pos, -0.5f, y_pos), colShape, btScalar(0));
                 objectBodies.push_back(pb);
+                if (map[i][j] == 'E') {
+                    end_point = btVector3(x_pos, 0.5f, y_pos);
+                }
             }
         }
     }
     std::cout << "Start: " << start_point.getX() << " " << start_point.getZ() << std::endl;
     btCollisionShape* colShape = physicsWorld->createSphereShape(0.35f);
     playerBody = physicsWorld->createPhysicsBody(start_point, colShape, btScalar(1));
+
 }
 
 void GameMaker::drawMap() {
@@ -505,7 +431,15 @@ void GameMaker::drawMap() {
                 
                 k--;
             } else {
-                drawFloor(glm::vec3(objectBodies[k]->getWorldPosition().x - 0.5f, objectBodies[k]->getWorldPosition().y, objectBodies[k]->getWorldPosition().z - 0.5f));
+                if (map[i][j] == 'S') {
+                    drawFloor(glm::vec3(objectBodies[k]->getWorldPosition().x, objectBodies[k]->getWorldPosition().y, objectBodies[k]->getWorldPosition().z), true, false);
+                } else if (map[i][j] == 'E') {
+                    drawFloor(glm::vec3(objectBodies[k]->getWorldPosition().x, objectBodies[k]->getWorldPosition().y, objectBodies[k]->getWorldPosition().z), false, true);
+                } else {
+                    drawFloor(glm::vec3(objectBodies[k]->getWorldPosition().x, objectBodies[k]->getWorldPosition().y, objectBodies[k]->getWorldPosition().z), false, false);
+                }
+                // gen end
+
             }
             k++;
         }

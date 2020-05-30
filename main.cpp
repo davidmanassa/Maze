@@ -166,6 +166,9 @@ int main( void ) {
     double dt;
 	float x, z;
 
+    double start_time = -1.0;
+    double final_score = -1.0;
+
     // render scene for each frame
     do {
         
@@ -185,11 +188,15 @@ int main( void ) {
 
         } else { // GAME
 
+            if (start_time == -1.0)
+                start_time = glfwGetTime();
+
             x = gm->physicsWorld->dynamicsWorld->getGravity().z();
             z = -gm->physicsWorld->dynamicsWorld->getGravity().x();
 
             // Rotate board
-            gm->Model = glm::translate(glm::mat4(1), glm::vec3(0,-8,0));
+            //gm->Model = glm::translate(glm::mat4(1), glm::vec3(0,-8,0));
+                gm->Model = glm::mat4(1.0f);
             gm->Model = glm::rotate(gm->Model, glm::radians(x), vec3(1,0,0));
             gm->Model = glm::rotate(gm->Model, glm::radians(z), vec3(0,0,1));
 
@@ -255,9 +262,23 @@ int main( void ) {
              *   x and y will be coordinates in [0-800][0-600]
              *  
              **/
-            char text[256];
-            sprintf(text,"Score: %.2f", glfwGetTime() );
-            printText2D(text, 300, 550, 40);
+
+            if (gm->win) {
+                if (final_score == -1.0)
+                    final_score = glfwGetTime()-start_time;
+                char text[256];
+                sprintf(text,"Score: %.2f", final_score );
+                printText2D(text, 200, 250, 30);
+
+                char text2[256];
+                sprintf(text2,"Venceu!!!");
+                printText2D(text2, 100, 300, 70);
+
+            } else {
+                char text[256];
+                sprintf(text,"Score: %.2f", glfwGetTime()-start_time );
+                printText2D(text, 400, 560, 30);
+            }
 
         }
 
