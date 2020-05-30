@@ -281,10 +281,10 @@ void GameMaker::drawFloor(glm::vec3 trans, bool start, bool end) {
     std::cout << lightPos.x << " " << lightPos.y << " " << lightPos.z << " b" << std::endl;
 
 
-    if (start)
+    /*if (start)
         floor->drawWithBasicLightningShader(lightPos, vec3(1,1,1), vec3(0,1,0), shaderBasicLightning);
-    else if (end)
-        floor->drawWithBasicLightningShader(lightPos, vec3(1,1,1), vec3(1,0,0), shaderBasicLightning);
+    else*/ if (end)
+        floor->drawWithBasicLightningShader(lightPos, vec3(1,1,1), vec3(0.5,1,0.5), shaderBasicLightning);
     else {
        // floor->drawWithStandardShader(Texture_floor, playerBody->getWorldPosition(), shaderStandard);
         floor->drawWithBasicLightningShader(lightPos, vec3(1,1,1), vec3(0.7,0.7,0.7), shaderBasicLightning);
@@ -449,8 +449,8 @@ void GameMaker::drawMap() {
                 drawCube(glm::vec3(objectBodies[k]->getWorldPosition().x - 0.5f, objectBodies[k]->getWorldPosition().y - 0.5f, objectBodies[k]->getWorldPosition().z - 0.5f));
             
             } else if (map[i][j] == 'B') {
-                int x_pos = i - ((mazeWidth*2)/2) -1, z_pos = j - ((mazeHeight*2)/2) -1;
-                drawHole(glm::vec3(x_pos + 0.5f, -0.5, z_pos + 0.5f));
+                //int x_pos = i - ((mazeWidth*2)/2) -1, z_pos = j - ((mazeHeight*2)/2) -1;
+                //drawHole(glm::vec3(x_pos + 0.5f, -0.5, z_pos + 0.5f));
                 
                 k--;
             } else {
