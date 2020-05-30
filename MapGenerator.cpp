@@ -194,6 +194,15 @@ char** MapGenerator::getMatrixForOpenGL() {
         newMatrix[i][(width * 2 + 1)] = '\0';
     }
 
+    // GERA FIM
+    int random = rand() % height*2;
+    while (newMatrix[random][(width * 2)-1] != '-') {
+        random = rand() % height*2;
+        std::cout << "END " << newMatrix[random][(width * 2)-1] << std::endl;
+    }
+    std::cout << "END " << newMatrix[random][(width * 2)-1] << std::endl;
+    newMatrix[random][(width * 2)-1] = 'E';
+
     openGLReadyMatrix = newMatrix;
 
     return newMatrix;

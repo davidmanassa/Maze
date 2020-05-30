@@ -24,6 +24,7 @@ using namespace glm;
 #include "common/texture.hpp"
 #include "common/objloader.hpp"
 #include "common/text2D.hpp"
+#include "common/controls.hpp"
 
 #include "MapGenerator.hpp"
 #include "Physics.hpp"
@@ -62,13 +63,6 @@ class GameMaker {
         GLuint uvbuffer_hole;
         GLuint uvbuffer_player;
 
-        // color buffer object (CBO)
-        //GLuint cubeColorbuffer;
-        //GLuint floorColorBuffer;
-        //GLuint playerColorBuffer;
-
-        //GLuint holeColorBuffer;
-
         MapGenerator mg = MapGenerator();
 
         void transferCubeToGPUMemory(void);
@@ -77,14 +71,20 @@ class GameMaker {
 
     public:
 
-        Object* player;
+        Object *player;
+        Object *floor, *cube, *hole;
 
         GLuint Texture_crate;
         GLuint Texture_floor;
         GLuint *Texture_hole;
         GLuint Texture_player;
+        GLuint uvmap;
 
         btVector3 start_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
+        btVector3 end_point = btVector3(1 + 0.5f, 0.5f, 1 + 0.5f);
+
+        bool win = false;
+
 
         Physics::PhysicsWorld* physicsWorld;
 
@@ -99,6 +99,9 @@ class GameMaker {
         GLuint shaderLamp;
         GLuint shaderMaterial;
         GLuint shaderMaterialAndTexture;
+        GLuint shaderBasicLightning;
+        GLuint shaderStandard;
+        GLuint shaderPhong;
 
         glm::mat4 MVP = glm::mat4(1.0f);
 
@@ -122,7 +125,7 @@ class GameMaker {
         void loadPlayer();
         glm::mat4 setMVP(void);
         void drawCube(glm::vec3 trans);
-        void drawFloor(glm::vec3 trans);
+        void drawFloor(glm::vec3 trans, bool start, bool end);
         void drawHole(glm::vec3 trans);
         void cleanupDataFromGPU();
         void drawMap();
