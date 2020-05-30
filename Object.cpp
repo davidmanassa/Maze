@@ -296,7 +296,8 @@ void Object::drawWithBasicLightningShader(vec3 lightPos, vec3 lightColor, vec3 o
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE, &View[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE, &Projection[0][0]);
 
-	glUniform3f(glGetUniformLocation(shader, "lightPos"), lightPos.x, lightPos.y+10, lightPos.z); /// ATTENTION
+
+	glUniform3f(glGetUniformLocation(shader, "lightPos"), lightPos.x, lightPos.y, lightPos.z); /// ATTENTION
     glUniform3f(glGetUniformLocation(shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z);
     glUniform3f(glGetUniformLocation(shader, "objectColor"), objectColor.x, objectColor.y, objectColor.z);
 

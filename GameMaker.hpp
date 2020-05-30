@@ -71,6 +71,8 @@ class GameMaker {
 
     public:
 
+        float rotateX, rotateZ;
+
         Object *player;
         Object *floor, *cube, *hole;
 

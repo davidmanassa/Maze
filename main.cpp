@@ -195,6 +195,9 @@ int main( void ) {
             x = gm->physicsWorld->dynamicsWorld->getGravity().z();
             z = -gm->physicsWorld->dynamicsWorld->getGravity().x();
 
+            gm->rotateX = x;
+            gm->rotateZ = z;
+
             // Rotate board
             //gm->Model = glm::translate(glm::mat4(1), glm::vec3(0,-8,0));
             gm->Model = glm::mat4(1.0f);
