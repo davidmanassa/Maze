@@ -127,8 +127,8 @@ int main( void ) {
 
     glfwSetWindowSizeCallback(window, window_size_callback);
     
-    // White background
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    // Black background
+    glClearColor(0.05f, 0.05f, 0.05f, 0.0f); // 
     
     // Clear the screen
     glClear( GL_COLOR_BUFFER_BIT );
@@ -274,7 +274,7 @@ int main( void ) {
                 char text2[256];
                 sprintf(text2,"Venceu!!!");
                 printText2D(text2, 100, 300, 70);
-
+                
             } else {
                 char text[256];
                 sprintf(text,"Score: %.2f", glfwGetTime()-start_time );

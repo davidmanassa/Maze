@@ -372,11 +372,22 @@ void GameMaker::loadPlayer() {
 
 void GameMaker::drawPlayer() {
 
-    player->setMVP(Projection, View, Model);
+        player->setMVP(Projection, View, Model);
+        player->setScale(vec3(0.5f, 0.5f, 0.5f));
+        player->drawWithLampShader(vec3(1.0f, 1.0f, 1.0f), shaderLamp);
 
-    player->setScale(vec3(0.5f, 0.5f, 0.5f));
-    player->setTranslate(playerBody->getWorldPosition());
-    player->drawWithLampShader(vec3(1.0f, 1.0f, 1.0f), shaderLamp);
+    if(!win){
+
+        player->setTranslate(playerBody->getWorldPosition());
+    
+    }else{
+        if(winPos.x==-999){
+
+            winPos = playerBody->getWorldPosition();
+        }
+
+
+    }
 
 }
 

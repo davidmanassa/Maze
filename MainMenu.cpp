@@ -7,9 +7,9 @@ void MainMenu::load() {
     //cubeMap->load();
 
     // load Textures
-    texture_normal = loadBMP_custom("images/start1.bmp");
+    texture_normal = loadBMP_custom("images/start_1_b.bmp");
 
-    texture_hover = loadBMP_custom("images/start2.bmp");
+    texture_hover = loadBMP_custom("images/start_2_b.bmp");
 
     texture_pressed = loadBMP_custom("images/sand.bmp");
 
@@ -60,6 +60,12 @@ void MainMenu::draw(vec2 mousePos, vec2 windowDimensions, bool pressed, GLuint s
 
     sprintf(text,"3D MAZE");
     printText2D(text, 130, 400, 80);
+
+    sprintf(text,"Carlos Esteves");
+    printText2D(text, 550, 80, 17);
+    
+    sprintf(text,"David Pires");
+    printText2D(text, 550, 50, 17);
 
     setMVP();
     //cubeMap->draw(MVP, shader);

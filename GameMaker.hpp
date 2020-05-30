@@ -109,7 +109,7 @@ class GameMaker {
 
         GLfloat delta = 0.75f;
         GLfloat angulo = 0.0f;
-
+        glm::vec3 winPos = glm::vec3(-999);
         glm::mat4 Projection = glm::mat4(1.0f);
         glm::mat4 View = glm::mat4(1.0f);
 
