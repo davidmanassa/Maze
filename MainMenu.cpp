@@ -103,7 +103,7 @@ void MainMenu::draw(vec2 mousePos, vec2 windowDimensions, bool pressed, GLuint s
     float Y = mousePos[1] - windowDimensions[1]/2;
     X = X/46;
     Y = - (Y/46);
-    std::cout << X << " " << Y << std::endl;
+    //std::cout << X << " " << Y << std::endl;
     if (X > -4 && X < 4 && Y > -2 && Y < 0) {
         isHover = true;
     }
