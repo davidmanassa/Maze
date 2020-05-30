@@ -274,8 +274,8 @@ void GameMaker::drawFloor(glm::vec3 trans, bool start, bool end) {
     else if (end)
         floor->drawWithBasicLightningShader(playerBody->getWorldPosition(), vec3(1,1,1), vec3(1,0,0), shaderBasicLightning);
     else {
-        //floor->drawWithStandardShader(Texture_floor, playerBody->getWorldPosition(), shaderStandard);
-        floor->drawWithBasicLightningShader(playerBody->getWorldPosition(), vec3(1,1,1), vec3(1,1,1), shaderBasicLightning);
+        floor->drawWithStandardShader(Texture_floor, playerBody->getWorldPosition(), shaderStandard);
+        //floor->drawWithBasicLightningShader(playerBody->getWorldPosition(), vec3(1,1,1), vec3(1,1,1), shaderBasicLightning);
     }
 
     

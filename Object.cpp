@@ -246,7 +246,7 @@ void Object::drawWithStandardShader(GLuint texture, vec3 lightPos, GLuint shader
 
     glUseProgram(shader);
 
-    MVP =  Projection * View * Model * Translate;
+    MVP =  Projection * View * Model * Translate * Scale;
 
     // Send our transformation to the currently bound shader, 
 	// in the "MVP" uniform
@@ -255,7 +255,7 @@ void Object::drawWithStandardShader(GLuint texture, vec3 lightPos, GLuint shader
 	glUniformMatrix4fv(glGetUniformLocation(shader, "V"), 1, GL_FALSE, &View[0][0]);
 
 	//glm::vec3 lightPos = glm::vec3(4,4,4);
-	glUniform3f(glGetUniformLocation(shader, "LightPosition_worldspace"), light_pos.x, light_pos.y+10, light_pos.z); // ATTENTION
+	glUniform3f(glGetUniformLocation(shader, "LightPosition_worldspace"), light_pos.x, light_pos.y, light_pos.z); // ATTENTION
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
