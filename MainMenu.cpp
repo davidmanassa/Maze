@@ -3,8 +3,8 @@
 
 void MainMenu::load() {
 
-    cubeMap = new CubeMap();
-    cubeMap->load();
+    //cubeMap = new CubeMap();
+    //cubeMap->load();
 
     // load Textures
     texture_normal = loadBMP_custom("images/start1.bmp");
@@ -55,9 +55,14 @@ void MainMenu::setMVP() {
 }
 
 void MainMenu::draw(vec2 mousePos, vec2 windowDimensions, bool pressed, GLuint shader) { // DO THIS FOR EACH BOTTON
+    
+    char text[256];
+
+    sprintf(text,"3D MAZE");
+    printText2D(text, 130, 400, 80);
 
     setMVP();
-    cubeMap->draw(MVP, shader);
+    //cubeMap->draw(MVP, shader);
 
     // draw menus
     glUseProgram(shader);

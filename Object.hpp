@@ -25,7 +25,7 @@ using namespace glm;
 #include "common/objloader.hpp"
 
 // RETIRAR VERSÃO FINAL
-#include <glm/gtx/string_cast.hpp>
+//#include <glm/gtx/string_cast.hpp>
 
 class Object {
 

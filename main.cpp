@@ -39,9 +39,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
     if(yoffset > 0)
-        gm->cameraAt.y -= 0.25;
+         gm->cameraAt.y -= 0.25;
     else
-        gm->cameraAt.y += 0.25;
+        if(gm->cameraAt.y < 43.5){
+          gm->cameraAt.y += 0.25;}
 }
 
 void handleKeyboardInput(GLFWwindow* window) {
@@ -168,7 +169,7 @@ int main( void ) {
 
     double start_time = -1.0;
     double final_score = -1.0;
-
+     gm->cameraAt.y += 8; // Ajustar para ficar com o score fora do maze
     // render scene for each frame
     do {
         
@@ -196,7 +197,7 @@ int main( void ) {
 
             // Rotate board
             //gm->Model = glm::translate(glm::mat4(1), glm::vec3(0,-8,0));
-                gm->Model = glm::mat4(1.0f);
+            gm->Model = glm::mat4(1.0f);
             gm->Model = glm::rotate(gm->Model, glm::radians(x), vec3(1,0,0));
             gm->Model = glm::rotate(gm->Model, glm::radians(z), vec3(0,0,1));
 

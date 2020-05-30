@@ -266,7 +266,7 @@ void GameMaker::drawFloor(glm::vec3 trans, bool start, bool end) {
 
     floor->setTranslate(trans);
     //floor->drawWithPhongShader(cameraAt, playerBody->getWorldPosition(), shaderPhong);
-    //floor->drawWithMaterialShader(playerBody->getWorldPosition(), cameraAt, shaderMaterial);
+   // floor->drawWithMaterialShader(playerBody->getWorldPosition(), cameraAt, shaderMaterial);
     //floor->drawWithStandardShader(uvmap, vec3(1.0f, 10.0f, 1.0f), shaderStandard );
 
     if (start)
@@ -274,12 +274,12 @@ void GameMaker::drawFloor(glm::vec3 trans, bool start, bool end) {
     else if (end)
         floor->drawWithBasicLightningShader(playerBody->getWorldPosition(), vec3(1,1,1), vec3(1,0,0), shaderBasicLightning);
     else {
-        floor->drawWithStandardShader(Texture_floor, playerBody->getWorldPosition(), shaderStandard);
-        //floor->drawWithBasicLightningShader(playerBody->getWorldPosition(), vec3(1,1,1), vec3(1,1,1), shaderBasicLightning);
+       // floor->drawWithStandardShader(Texture_floor, playerBody->getWorldPosition(), shaderStandard);
+        floor->drawWithBasicLightningShader(playerBody->getWorldPosition(), vec3(1,1,1), vec3(0.7,0.7,0.7), shaderBasicLightning);
     }
 
     
-}
+} 
 
 void GameMaker::drawHole(glm::vec3 trans) {
 
@@ -287,7 +287,7 @@ void GameMaker::drawHole(glm::vec3 trans) {
    hole->setTranslate(trans);
    hole->drawWithTextureShader(Texture_hole[0], shaderTexture);
 
-/**
+/*
    glUseProgram(shaderTexture);
     
     //glm::mat4 model;
@@ -340,7 +340,7 @@ void GameMaker::drawHole(glm::vec3 trans) {
     glDrawArrays(GL_TRIANGLES, 0, 2*3);
     
     glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);**/
+    glDisableVertexAttribArray(1);*/
 }
 
 GameMaker::~GameMaker() {
@@ -444,14 +444,14 @@ void GameMaker::drawMap() {
             k++;
         }
     }
-
+     drawPlayer();
     cubeMap->draw(MVP, shaderTexture);
 
-    drawPlayer();
+   
 
-    std::cout << " gravity: " << physicsWorld->dynamicsWorld->getGravity().getX() << " " << physicsWorld->dynamicsWorld->getGravity().getY() << " " << physicsWorld->dynamicsWorld->getGravity().getZ() << " " << std::endl;
-    std::cout << " velocity: " << playerBody->body->getLinearVelocity().getX() << " " << playerBody->body->getLinearVelocity().getY() << " " << playerBody->body->getLinearVelocity().getZ() << " " << std::endl;
-    std::cout << " position: " << playerBody->getWorldPosition().x << " " << playerBody->getWorldPosition().y << " " << playerBody->getWorldPosition().z << std::endl;
-    std::cout << " " << std::endl;
+    //std::cout << " gravity: " << physicsWorld->dynamicsWorld->getGravity().getX() << " " << physicsWorld->dynamicsWorld->getGravity().getY() << " " << physicsWorld->dynamicsWorld->getGravity().getZ() << " " << std::endl;
+    //std::cout << " velocity: " << playerBody->body->getLinearVelocity().getX() << " " << playerBody->body->getLinearVelocity().getY() << " " << playerBody->body->getLinearVelocity().getZ() << " " << std::endl;
+    //std::cout << " position: " << playerBody->getWorldPosition().x << " " << playerBody->getWorldPosition().y << " " << playerBody->getWorldPosition().z << std::endl;
+    //std::cout << " " << std::endl;
 
 }
