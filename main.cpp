@@ -275,10 +275,11 @@ int main( void ) {
                 printText2D(text, 200, 250, 30);
 
                 char text2[256];
-                sprintf(text2,"Venceu!!!");
-                printText2D(text2, 100, 300, 70);
+                sprintf(text2,"Maze Completed!!");
+                printText2D(text2, 100, 300, 40);
                 
             } else {
+                
                 char text[256];
                 sprintf(text,"Score: %.2f", glfwGetTime()-start_time );
                 printText2D(text, 400, 560, 30);
