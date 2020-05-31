@@ -225,6 +225,8 @@ void GameMaker::drawFloor(glm::vec3 trans, bool start, bool end) {
     floor->setTranslate(trans);
 
     vec3 lightPos = playerBody->getWorldPosition();
+    if(win)
+        lightPos = winPos;
 
     glm::mat4 rotationMat(1); // Creates a identity matrix
     rotationMat = glm::rotate(rotationMat, glm::radians(rotateX), glm::vec3(1, 0, 0));
