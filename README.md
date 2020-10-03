@@ -1,6 +1,7 @@
 # Maze
 
-Computer Graphics project
+Projeto desenvolvido para a cadeira de Computação Gráfica durante o ano de 2019/2020.
+
 <br>
 
 # Labirinto 2D/3D
