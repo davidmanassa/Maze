@@ -16,3 +16,7 @@ de utilizar a linguagem C++, bem como as bibliotecas OpenGL, GLFW, GLEW e GLM. A
 <br>• Cálculo das sombras das paredes do labirinto.
 <br>• Câmera pode mover-se para qualquer posição do labirinto.
 <br>• Utilização do teclado e do rato para mover, aproximar e alterar a vista sobre o labirinto.
+
+![alt text](https://github.com/davidmanassa/Maze/blob/master/intro.png)
+
+![alt text](https://github.com/davidmanassa/Maze/blob/master/end.png)
